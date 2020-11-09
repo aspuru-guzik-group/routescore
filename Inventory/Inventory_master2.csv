@@ -1,0 +1,47 @@
+Frag_type,Frag_num,SMILES,Name,g/mol,Quantity,CAD,$/mol
+a,1,OB(O)c1ccc2ncccc2c1,quinolin-6-ylboronic acid,172.98,1,174.01,30100.2498
+a,2,OB(O)c1cc(F)cc(F)c1,"(3,5-difluorophenyl)boronic acid",157.912,5,99.4,3139.29056
+a,3,CC(C)(C)OC(=O)n1ccc2cc(B3OC(C)(C)C(C)(C)O3)ccc21,-,343.232,1,120,41187.84
+a,4,OB(O)c1cc(Cl)ccc1Cl,"(2,5-dichlorophenyl)boronic acid",190.822,5,119,4541.5636
+a,5,OB(O)c1ccco1,furan-2-ylboronic acid,111.893,1,69,7720.617
+a,6,CSc1cncc(B(O)O)c1,(5-(methylthio)pyridin-3-yl)boronic acid,169.014,0.25,149.359,100975.0481
+a,7,C[N+]12CC(=O)O[B-]1(C=Cc1ccccc1)OC(=O)C2,"(E)-6-methyl-2-styryl-1,3,6,2-dioxazaborocane-4,8-dione",259.07,5,175,9067.45
+a,8,OB(O)c1nccs1,thiazol-2-ylboronic acid,128.949,1,1236.9,159497.0181
+a,9,OB(O)c1ccnc(F)c1,(2-fluoropyridin-4-yl)boronic acid,140.91,0.25,67.7,38158.428
+a,10,OB(O)c1ccc(F)c2ccccc12,(4-fluoronaphthalen-1-yl)boronic acid,189.982,1,241.32,45846.45624
+a,11,CS(=O)(=O)c1cncc(B(O)O)c1,(5-(methylsulfonyl)pyridin-3-yl)boronic acid,201.012,0.25,327.99,263719.7035
+b,1,C[N+]12CC(=O)O[B-]1(c1ccccc1Br)OC(=O)C2,"2-(2-bromophenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",311.928,1,19.1,5957.8248
+b,2,C[N+]12CC(=O)O[B-]1(c1sccc1Br)OC(=O)C2,"2-(3-bromothiophen-2-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",317.957,1,36.6,11637.2262
+b,3,CC(=CBr)[B-]12OC(=O)C[N+]1(C)CC(=O)O2,"(Z)-2-(1-bromoprop-1-en-2-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",275.895,1,112,30900.24
+b,4,C[N+]12CC(=O)O[B-]1(C=Cc1cccc(Br)c1)OC(=O)C2,"(E)-2-(3-bromostyryl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",337.966,1,163,55088.458
+b,5,C[N+]12CC(=O)O[B-]1(c1c(F)cccc1Br)OC(=O)C2,"2-(2-bromo-6-fluorophenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",329.918,1,37.3,12305.9414
+b,6,Cn1ncc(Br)c1[B-]12OC(=O)C[N+]1(C)CC(=O)O2,"2-(4-bromo-1-methyl-1H-pyrazol-5-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",315.92,1,33.7,10646.504
+b,7,C[N+]12CC(=O)O[B-]1(c1ccc(Br)s1)OC(=O)C2,"2-(5-bromothiophen-2-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",317.957,1,48.8,15516.3016
+b,8,C[N+]12CC(=O)O[B-]1(/C=C\Br)OC(=O)C2,"(Z)-2-(2-bromovinyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",261.868,1,525,137480.7
+b,9,C[N+]12CC(=O)O[B-]1(c1cccnc1Br)OC(=O)C2,"2-(2-bromopyridin-3-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",312.916,1,34.1,10670.4356
+b,10,C[N+]12CC(=O)O[B-]1(c1ccc(Br)cc1)OC(=O)C2,"2-(4-bromophenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",311.928,5,289,18029.4384
+b,11,C[N+]12CC(=O)O[B-]1(/C=C/Br)OC(=O)C2,"(E)-2-(2-bromovinyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",261.868,1,66.5,17414.222
+b,12,C[N+]12CC(=O)O[B-]1(c1cccc(Br)c1F)OC(=O)C2,"2-(3-bromo-2-fluorophenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",329.918,1,36.5,12042.007
+b,13,C[N+]12CC(=O)O[B-]1(c1cccc(Br)c1)OC(=O)C2,"2-(3-iodophenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",311.928,1,39,12165.192
+b,14,C[N+]12CC(=O)O[B-]1(c1cc3cc(Br)ccc3o1)OC(=O)C2,"2-(5-bromobenzofuran-2-yl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",351.949,1,77.7,27346.4373
+b,15,C[N+]12CC(=O)O[B-]1(c1cc(I)cc(C(F)(F)F)c1)OC(=O)C2,"2-(3-iodo-5-(trifluoromethyl)phenyl)-6-methyl-1,3,6,2-dioxazaborocane-4,8-dione",426.925,1,136,58061.8
+c,1,Brc1cc(Br)c2ccccc2c1,"1,3-dibromonaphthalene",285.966,1,598.5,171150.651
+c,2,Clc1cc(Br)sc1Br,"2,5-dibromo-3-chlorothiophene",276.38,1,796.67,220183.6546
+c,3,Cc1nc2c(Br)c3nsnc3c(Br)c2nc1C,"4,9-dibromo-6,7-dimethyl-[1,2,5]thiadiazolo[3,4-g]quinoxaline",374.061,1,1484.28,555211.2611
+c,4,Brc1ccccc1Oc1ccccc1Br,"2,2'-oxybis(bromobenzene)",328.003,5,662.34,43449.9014
+c,5,CC(C)(C)c1ccc2c(Br)c3ccccc3c(Br)c2c1,"9,10-dibromo-2-(tert-butyl)anthracene",392.134,0.05,67.7,530949.436
+c,6,Fc1cc(Br)c(F)cc1Br,"1,4-dibromo-2,5-difluorobenzene",271.886,10,120,3262.632
+c,7,Brc1ccc2oc(Br)cc2c1,"2,5-dibromobenzofuran",275.927,0,0,0
+c,8,Brc1ccc(Br)o1,"2,5-dibromofuran",225.867,0.25,67.7,61164.7836
+c,9,Brc1ccc2c(c1)C1(c3ccccc3-c3ccccc31)c1cc(Br)ccc1-2,"2,7-dibromo-9,9'-spirobi[fluorene]",474.195,1,123,58325.985
+c,10,Clc1cc(Cl)c(Br)cc1Br,"1,5-dibromo-2,4-dichlorobenzene",304.796,1,2060.968,628174.8025
+c,11,Brc1cnc2nc(Br)ccc2c1,"2,6-dibromo-1,8-naphthyridine",287.942,1,835.24,240500.6761
+c,12,Brc1cccc2cccc(Br)c12,"1,8-dibromonaphthalene",285.966,1,109,31170.294
+c,13,CCCCC(CC)CC1(CC(CC)CCCC)c2cc(I)ccc2-c2ccc(I)cc21,"2,7-dibromo-9,9-bis(2-ethylhexyl)-9H-fluorene",642.447,5,89.2,9784.29448
+c,14,Fc1c(F)c(Br)c2nsnc2c1Br,"4,7-dibromo-5,6-difluorobenzo[c][1,2,5]thiadiazole",329.951,1,119.7,39495.1347
+c,15,C[Si](C)(c1ccc(Br)cc1)c1ccc(Br)cc1,bis(4-bromophenyl)dimethylsilane,370.16,0,0,0
+c,16,Brc1ccc2nc3ccc(Br)cc3nc2c1,"2,8-dibromophenazine",338.002,1,1230.25,415826.9605
+c,17,C[Si](C)(c1ccccc1Br)c1ccccc1Br,bis(2-bromophenyl)dimethylsilane,370.16,0,0,0
+c,18,Brc1ccc(Br)nc1,"2,5-dibromopyridine",236.894,10,110,2605.834
+buch,1,Brc1nccnc1,,158.98,1,183,29093.34
+snar,1,c1ccc2c(c1)[nH]c1ccccc12,,167.21,5,36,1203.912
