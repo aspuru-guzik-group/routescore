@@ -160,8 +160,8 @@ class Calculate:
             img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
             display(img)
 
-        if sim_AC == 0:
-            sim_AC = 0.0000000001
+        # if sim_AC == 0:
+            # sim_AC = 0.0000000001
         travel = sim_BC / (sim_AC)
 
         return travel
@@ -219,6 +219,7 @@ class Calculate:
 
             score += cost
             man_molarCost = man_yld * man_money / man_scale
+            # man_molarCost = 0
             # print('step cost:', cost)
             # print('step distance:', man_dist)
             # print('Man score:', score)
@@ -253,7 +254,7 @@ class Calculate:
         # man_pre = ManualPreSynthesis()
         # lookup_df: pd.DataFrame = pd.read_excel(os.path.join(SMRY_DIR, 'ManSynth_lookup.xlsx'))
 
-        man_frags: List[dict] = [frag for frag in frag_dicts if frag['$/mol'] == 0]
+        man_frags: List[dict] = [frag for frag in frag_dicts if frag['Manual?'] == 'Yes']
         if len(man_frags) > 0:
             print('Manual fragments:', man_frags)
 
@@ -262,12 +263,15 @@ class Calculate:
             man_mol = {'score': 0, '$/mol': 0}
             print('ATTN:    Manually synthesized starting material!')
             self.draw_mols([frag['SMILES']])
-            man_mol['score'], frag['$/mol'], mandists_list = self.get_man_synth(frag['SMILES'],
+            man_mol['score'], man_Cmoney, mandists_list = self.get_man_synth(frag['SMILES'],
                                                                                 target_smiles,
                                                                                 scale)
             # print(f"Added {man_mol['score']} to StepScore.")
             # print(f"Cost of manual fragment is {frag['$/mol']} $/mol.")
             man_stepscore += man_mol['score']
+            print(man_Cmoney)
+            # frag['$/mol'] = 0
+            # print(frag['$/mol'])
 
         sm_eqs: List[float] = [sm['eq'] for sm in sm_list]
         eq_mult: int = self._stoichio(frag_dicts, rxn_type)
@@ -294,6 +298,7 @@ class Calculate:
                                                 eq_mult)
         # print('cost_materials:', cost_materials)
         cost: float = cost_time * cost_money * cost_materials
+        print('cost:', cost)
 
         # Distance "traveled" in chemical space by reaction
         sims_list: List[float] = [self._similarity(sm['SMILES'], product_smiles, target_smiles) for sm in frag_dicts]
@@ -310,7 +315,7 @@ class Calculate:
 
         MW: float = Descriptors.MolWt(Chem.MolFromSmiles(product_smiles))
 
-        molarCost = yld * cost_money / scale
+        # molarCost = yld * cost_money / scale
 
         product_dict: dict = {
             'Frag_type': '-',
@@ -320,7 +325,7 @@ class Calculate:
             'g/mol': MW,
             'Quantity': 0,
             'CAD': 0,
-            '$/mol': molarCost
+            '$/mol': 0
             }
 
         self.update_inventory(product_smiles, product_dict)
