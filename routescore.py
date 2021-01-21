@@ -159,6 +159,9 @@ class Calculate:
             mol_list = [Chem.MolFromSmiles(mol) for mol in mol_list]
             img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
             display(img)
+
+        if sim_AC == 0:
+            sim_AC = 0.0000000001
         travel = sim_BC / (sim_AC)
 
         return travel
