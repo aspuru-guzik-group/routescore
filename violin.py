@@ -26,8 +26,8 @@ all_dfs = pd.DataFrame()
 for df in results:
     all_dfs = all_dfs.append(df, ignore_index=True)
 
-bottom = -0.5
-top = 4.5
+bottom = 3
+top = 9
 
 ax = sns.violinplot(x='Set',
                     y='log(RouteScore)',
