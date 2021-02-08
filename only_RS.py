@@ -11,19 +11,11 @@ b: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_Buch.pkl'))
 bs: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_B-S.pkl'))
 sb: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_S-B.pkl'))
 
+all_dfs = pd.DataFrame()
 dfs = [base, s, b, bs]
 df_names = ['Base', 'SNAr', 'Buch', 'B-S']
 for df, name in zip(dfs, df_names):
-    df = df.drop(['a', 'b', 'c', 'ab', 'Overlap', '1 / Overlap', 'Abs max', 'Em max'], axis='columns')
-
-for df in [s, sb, bs]:
-    df = df.drop(['F', 'carbazole'], axis='columns')
-
-for df in [b, sb, sb]:
-    df = df.drop(['N-Boc', 'N-H', 'halide'], axis='columns')
-
-all_dfs = pd.DataFrame()
-for df, name in zip(dfs, df_names):
+    df = df[['pentamer', 'RouteScore', 'log(RouteScore)']]
     df.to_pickle(os.path.join(RSLT_DIR, f'{name}_RSonly.pkl'))
     all_dfs = all_dfs.append(df)
 
