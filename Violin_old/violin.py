@@ -26,36 +26,32 @@ all_dfs = pd.DataFrame()
 for df in results:
     all_dfs = all_dfs.append(df, ignore_index=True)
 
-bottom = 3.5
-top = 8.5
+bottom = 3
+top = 9
 
-ax = sns.violinplot(x='Route type',
+ax = sns.violinplot(x='Set',
                     y='log(RouteScore)',
                     data=all_dfs,
                     scale='width',
-                    order=['iSMC auto.', 'iSMC man.', 'SNAr', 'BHA', 'B-S', 'S-B']
+                    order=['Base', 'SNAr', 'Buchwald', 'B-S', 'S-B']
                     )
 ax.set_ylim(bottom=bottom, top=top)
-ax.set_xticklabels(['iSMC\nauto.', 'iSMC\nman.', 'SNAr', 'BHA', 'B-S', 'S-B'])
-plt.xlabel('Route type', labelpad=-1.5)
-# plt.setp(ax.get_xticklabels(), rotation=25)
-plt.tight_layout()
 plt.savefig('violin_set.pdf')
 plt.show()
 
-bx = sns.violinplot(x='Route type',
+bx = sns.violinplot(x='Set',
                     y='log(RouteScore)',
                     hue='Type',
                     data=all_dfs,
                     split=True,
                     scale='width',
-                    order=['iSMC', 'SNAr', 'BHA', 'B-S', 'S-B']
+                    order=['Base', 'SNAr', 'Buchwald', 'B-S', 'S-B']
                     )
 bx.set_ylim(bottom=bottom, top=top)
 plt.savefig('violin_set+type.pdf')
 plt.show()
 
-cx = sns.violinplot(x='Total manual steps',
+cx = sns.violinplot(x='Manual steps',
                     y='log(RouteScore)',
                     data=all_dfs,
                     scale='width',
@@ -64,7 +60,7 @@ cx.set_ylim(bottom=bottom, top=top)
 plt.savefig('violin_mansteps.pdf')
 plt.show()
 
-dx = sns.violinplot(x='Manual steps',
+dx = sns.violinplot(x='Manual',
                     y='log(RouteScore)',
                     data=all_dfs,
                     scale='width',
