@@ -1,12 +1,9 @@
 import os
 from typing import List
 import pandas as pd
-import numpy as np
-from routescore import Calculate, Properties, Analysis
+from routescore import Reaction_Templates, Calculate, Properties, Analysis
 
-from rdkit import Chem
-from rdkit.Chem import Descriptors
-
+rxn = Reaction_Templates()
 calc = Calculate()
 pr = Properties()
 an = Analysis()
@@ -29,51 +26,38 @@ for i in range(len(targets.index)):
     target = targets.at[i, 'pentamer']
 
     # step 1
-    sm_list: List[dict] = [
-                           {'smiles': targets.at[i, 'a'], 'eq': 3},
-                           {'smiles': targets.at[i, 'b'], 'eq': 1}
-                           ]
-    product = targets.at[i, 'ab']
-    step1_scale: float = 0.0001
-    step1_yld: float = 1
-    step1: dict = calc.StepScore(
-                                 sm_list,
-                                 product,
-                                 target,
-                                 'Suzuki',
-                                 step1_scale,
-                                 step1_yld
-                                 )
+    scale: float = 0.0001
+    step1, NextStep_scale = rxn.wingSuzuki(
+                                           targets.at[i, 'a'],
+                                           targets.at[i, 'b'],
+                                           targets.at[i, 'ab'],
+                                           target,
+                                           scale
+                                           )
+
     steps.append(step1)
 
     # step 2
-    sm_list: List[dict] = [
-                           {'smiles': targets.at[i, 'ab'], 'eq': 3},
-                           {'smiles': targets.at[i, 'c'], 'eq': 1}
-                           ]
-    step2_scale: float = step1_scale * step1_yld
-    step2_yld: float = 1
-    step2: dict = calc.StepScore(
-                                 sm_list,
-                                 target,
-                                 target,
-                                 'Suzuki',
-                                 step2_scale,
-                                 step2_yld
-                                 )
+    scale = NextStep_scale
+    step2, NextStep_scale = rxn.pentamerSuzuki(
+                                               targets.at[i, 'ab'],
+                                               targets.at[i, 'c'],
+                                               target,
+                                               target,
+                                               scale
+                                               )
+
     steps.append(step2)
 
-    n_target = step2_yld * step2_scale
-    iso = n_target * Descriptors.MolWt(Chem.MolFromSmiles(target))
-    # print(f'Isolated yield:    {iso} g')
+    # final_scale = step2_yld * step2_scale
+    final_scale = NextStep_scale
 
-    route_score = calc.RouteScore(steps, n_target)
-    # print('RouteScore =', route_score, '\n')
-
-    targets.at[i, 'Isolated'] = iso
-    targets.at[i, 'RouteScore'] = route_score
-    targets.at[i, 'log(RouteScore)'] = np.log10(route_score)
-    targets.at[i, 'Step details'] = steps
+    targets = calc.Process(
+                           targets,
+                           i,
+                           steps,
+                           final_scale
+                           )
 
 targets = pr.get_props(targets)
 

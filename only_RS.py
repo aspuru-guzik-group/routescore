@@ -25,6 +25,6 @@ for df in [b, sb, sb]:
 all_dfs = pd.DataFrame()
 for df, name in zip(dfs, df_names):
     df.to_pickle(os.path.join(RSLT_DIR, f'{name}_RSonly.pkl'))
-    all_dfs = all_dfs.append(df)
+    all_dfs = all_dfs.append(df, ignore_index=True)
 
 all_dfs.to_pickle(os.path.join(RSLT_DIR, 'All_RSonly.pkl'))
