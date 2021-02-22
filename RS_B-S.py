@@ -1,8 +1,9 @@
 import os
 from typing import List
 import pandas as pd
-from routescore import Reaction_Templates, Calculate, Properties, Analysis
+from routescore import General, Reaction_Templates, Calculate, Properties, Analysis
 
+gen = General()
 rxn = Reaction_Templates()
 calc = Calculate()
 pr = Properties()
@@ -12,9 +13,12 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 TGT_DIR = os.path.join(HERE, 'Targets')
 TARGETS_FILE = os.path.join(TGT_DIR, 'targets_B-S.pkl')
 
-targets: pd.DataFrame = pd.read_pickle(TARGETS_FILE)
-targets['Step details'] = ''
-targets['Step details'] = targets['Step details'].astype('object')
+# targets: pd.DataFrame = pd.read_pickle(TARGETS_FILE)
+# targets['Step details'] = ''
+# targets['Step details'] = targets['Step details'].astype('object')
+# targets['RouteScore details'] = ''
+# targets['RouteScore details'] = targets['RouteScore details'].astype('object')
+targets: pd.DataFrame = gen.prep_details(TARGETS_FILE)
 
 num_targets = len(targets.index)
 
@@ -85,12 +89,12 @@ for i in range(len(targets.index)):
 
     final_scale = NextStep_scale
 
-    targets = calc.Process(
-                           targets,
-                           i,
-                           steps,
-                           final_scale
-                           )
+    targets = gen.Process(
+                          targets,
+                          i,
+                          steps,
+                          final_scale
+                          )
 
 targets = pr.get_props(targets)
 

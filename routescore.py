@@ -22,6 +22,102 @@ PROP_DIR = os.path.join(HERE, 'Properties')
 props_dict: dict = pickle.load(open(os.path.join(PROP_DIR, 'spectra_dict.pkl'), 'rb'))
 
 
+class General:
+    """Class for general functions and data management operations."""
+
+    def load_pkl(self, folder: str, file: str):
+        """Load a .pkl file.
+
+        Parameters
+        ----------
+        folder:     Directory where the file is located. Must be within HERE.
+        file:       Filname of the .pkl file
+
+        Returns
+        -------
+        pkl: Contents of the .pkl file
+        """
+        load_path = os.path.join(HERE, folder, f'{file}.pkl')
+        pkl = pickle.load(open(load_path, 'rb'))
+        return pkl
+
+    def draw_mols(self, smiles_list: list) -> None:
+        """Draw molecular structures inline.
+
+        Parameters
+        ----------
+        mol_list: List of SMILES to draw
+
+        Returns
+        -------
+        Nothing
+        """
+        # for i in range(len(mol_list)):
+        #     mol_list[i] = Chem.MolFromSmiles(mol_list[i])
+        mol_list = [Chem.MolFromSmiles(smiles) for smiles in smiles_list]
+
+        img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
+        display(img)
+
+    def prep_details(self, df_file: os.PathLike):
+        """Prepare dataframe with routes for details dictionaries.
+
+        Parameters
+        ----------
+        df_file: Path for the file containing the dataframe
+
+        Returns
+        -------
+        df: Appropriately formatted dataframe.
+        """
+        df: pd.DataFrame = pd.read_pickle(df_file)
+        df['Step details'] = ''
+        df['Step details'] = df['Step details'].astype('object')
+        df['RouteScore details'] = ''
+        df['RouteScore details'] = df['RouteScore details'].astype('object')
+        return df
+
+    def Process(self,
+                targets_df: pd.DataFrame,
+                i: int,
+                steps_list: List[float],
+                n_target: float
+                ) -> pd.DataFrame:
+        """Do some final processing for the route in the full dataframe.
+
+        Adds the following data:
+            Isolated: mass of isolated target molecule
+            RouteScore: the RouteScore
+            log(RouteScore): log10 of the RouteScore
+            Step details: list of all stepscore_results dictionaries
+            Total manual steps: total number of manual steps in the route
+
+        Parameters
+        ----------
+        targets_df: Full dataframe of all target molecules
+        i:          Index of the target molecule in the df
+        steps_list: List containing details for all the steps along the route
+        n_target:   Quantity (mols) of the target molecule obtained
+
+        Returns
+        -------
+        targets_df: Updated full dataframe of all target molecules
+        """
+        isolated: float = n_target * Descriptors.MolWt(Chem.MolFromSmiles(targets_df.at[i, 'pentamer']))
+        # print(f'Isolated yield:    {isolated} g')
+        routescore_details, total_man = Calculate().RouteScore(steps_list, n_target)
+        # print(total_man)
+
+        targets_df.at[i, 'Isolated'] = isolated
+        targets_df.at[i, 'RouteScore'] = routescore_details['RouteScore']
+        targets_df.at[i, 'log(RouteScore)'] = np.log10(routescore_details['RouteScore'])
+        targets_df.at[i, 'Step details'] = steps_list
+        targets_df.at[i, 'RouteScore details'] = routescore_details
+        targets_df.at[i, 'Total manual steps'] = int(total_man)
+        targets_df.at[i, 'Successfully processed?'] = True
+        return targets_df
+
+
 class Reaction_Templates:
     """Class containing centralized templates for all the reactions."""
 
@@ -251,21 +347,21 @@ class Calculate:
     inv = None
     inv = pd.read_csv(inv_path)
 
-    def load_pkl(self, folder: str, file: str):
-        """Load a .pkl file.
+    # def load_pkl(self, folder: str, file: str):
+    #     """Load a .pkl file.
 
-        Parameters
-        ----------
-        folder:     Directory where the file is located. Must be within HERE.
-        file:       Filname of the .pkl file
+    #     Parameters
+    #     ----------
+    #     folder:     Directory where the file is located. Must be within HERE.
+    #     file:       Filname of the .pkl file
 
-        Returns
-        -------
-        pkl: Contents of the .pkl file
-        """
-        load_path = os.path.join(HERE, folder, f'{file}.pkl')
-        pkl = pickle.load(open(load_path, 'rb'))
-        return pkl
+    #     Returns
+    #     -------
+    #     pkl: Contents of the .pkl file
+    #     """
+    #     load_path = os.path.join(HERE, folder, f'{file}.pkl')
+    #     pkl = pickle.load(open(load_path, 'rb'))
+    #     return pkl
 
     def get_block_info(self, smilesBlock: str) -> dict:
         """Get block informtion dict from inventory dataframe.
@@ -281,7 +377,7 @@ class Calculate:
         block_entry = self.inv[self.inv['SMILES'] == smilesBlock]
 
         # print('get block smiles:', smilesBlock)
-        # self.draw_mols([smilesBlock])
+        # General().draw_mols([smilesBlock])
 
         block_info: dict = block_entry.to_dict(orient='records')[0]
         return block_info
@@ -301,23 +397,23 @@ class Calculate:
         if mol_smiles not in self.inv.SMILES.values:
             self.inv = self.inv.append(mol_dict, ignore_index=True)
 
-    def draw_mols(self, smiles_list: list) -> None:
-        """Draw molecular structures inline.
+    # def draw_mols(self, smiles_list: list) -> None:
+    #     """Draw molecular structures inline.
 
-        Parameters
-        ----------
-        mol_list: List of SMILES to draw
+    #     Parameters
+    #     ----------
+    #     mol_list: List of SMILES to draw
 
-        Returns
-        -------
-        Nothing
-        """
-        # for i in range(len(mol_list)):
-        #     mol_list[i] = Chem.MolFromSmiles(mol_list[i])
-        mol_list = [Chem.MolFromSmiles(smiles) for smiles in smiles_list]
+    #     Returns
+    #     -------
+    #     Nothing
+    #     """
+    #     # for i in range(len(mol_list)):
+    #     #     mol_list[i] = Chem.MolFromSmiles(mol_list[i])
+    #     mol_list = [Chem.MolFromSmiles(smiles) for smiles in smiles_list]
 
-        img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
-        display(img)
+    #     img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
+    #     display(img)
 
     # def stoichiometry(self, sms: List[dict], rxn: str) -> int:
     #     """Determine the number of reaction sites.
@@ -449,13 +545,6 @@ class Calculate:
         -------
         travel: Distance that the reaction "travels" through chemical space
         """
-        # mol_list = [sm_smiles, pdt_smiles, tgt_smiles]
-        # for i in range(len(mol_list)):
-        #     mol_list[i] = Chem.MolFromSmiles(mol_list[i])
-
-        # img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
-        # display(img)
-
         sim_BC = self.fp_similarity(pdt_smiles, tgt_smiles)
         sim_AC = self.fp_similarity(sm_smiles, tgt_smiles)
 
@@ -463,19 +552,17 @@ class Calculate:
             print('sim_BC:', sim_BC)
             print('sim_AC:', sim_AC)
             print('!!!\nATTN: Product less similar than SM!\n!!!')
-            self.draw_mols([sm_smiles, pdt_smiles, tgt_smiles])
+            General().draw_mols([sm_smiles, pdt_smiles, tgt_smiles])
 
-<<<<<<< Updated upstream
         if sim_AC == 0:
             sim_AC = 0.0000000001
         travel = sim_BC / (sim_AC)
-=======
         # TODO: Where sim_AC == 0, we need to avoid a divide by zero error.
         # if sim_AC == 0:
-            # sim_AC = 0.0000000001
+        #     sim_AC = 0.0000000001
         travel: float = sim_BC / (sim_AC + 0.0000000001)
->>>>>>> Stashed changes
-
+        # if travel > 6:
+        #     General().draw_mols([sm_smiles, pdt_smiles, tgt_smiles])
         return travel
 
     def fp_similarity(self, smiles1: str, smiles2: str) -> float:
@@ -545,21 +632,32 @@ class Calculate:
             # print('mtrl cost:', man_m)
             cost: float = man_time * man_money * man_materials
 
-            manSM_df = man_df[step][man_df[step]['SM?'] == True]
+            # manSM_df = man_df[step][man_df[step]['SM?'] == True]
+            manSM_df = man_df[step][man_df[step]['SM?']]
             # SMs_list: List[str] = [row for row in manSM_df['SMILES']]
-            # self.draw_mols(SMs_list)
-            # self.draw_mols([man_pdt_smiles, tgt_smiles])
+            # General().draw_mols(SMs_list)
+            # General().draw_mols([man_pdt_smiles, tgt_smiles])
+
             sims_list: List[float] = [self.similarity(row, man_pdt_smiles, tgt_smiles) for row in manSM_df['SMILES']]
+            # sims_list = []
+            # for row in manSM_df['SMILES']:
+            #     d = self.similarity(row, man_pdt_smiles, tgt_smiles)
+            #     sims_list.append(d)
+                # if d > 4:
+                #     General().draw_mols([row, man_pdt_smiles, tgt_smiles])
+
             man_dist: float = min(sims_list)
+            if man_dist > 4:
+                idx = sims_list.index(min(sims_list))
+                really_efficient_mol = manSM_df['SMILES'][idx]
+                General().draw_mols([really_efficient_mol, man_pdt_smiles, tgt_smiles])
             l_man_dist.append(man_dist)
+            print(l_man_dist)
 
             score += cost
-<<<<<<< Updated upstream
-            man_molarCost = man_yld * man_money / man_scale
-=======
+            # man_molarCost = man_yld * man_money / man_scale
             man_molarCost = man_yield * man_money / man_scale
             # man_molarCost = 0
->>>>>>> Stashed changes
             # print('step cost:', cost)
             # print('step distance:', man_dist)
             # print('Man score:', score)
@@ -614,52 +712,37 @@ class Calculate:
         block_dicts: List[dict] = [self.get_block_info(sm['smiles']) for sm in sm_list]
         # print(block_dicts)
 
-        reaction: list = self.load_pkl(TYPE_DIR, rxn_type)
-        rxn_smry: dict = self.load_pkl(SMRY_DIR, f'{rxn_type}_summary')
+        reaction: list = General().load_pkl(TYPE_DIR, rxn_type)
+        rxn_smry: dict = General().load_pkl(SMRY_DIR, f'{rxn_type}_summary')
 
-        n_parr: int = rxn_smry['n_parr']  # Number of parallel reactions by robot
+        n_parr: int = rxn_smry['n_parr']  # Number of reactions performed in parallel
         t_H: float = rxn_smry['t_H'] / n_parr
         t_M: float = rxn_smry['t_M'] / n_parr
         # yld: float = rxn_smry['yield']
         # scale: float = rxn_smry['scale']
 
-<<<<<<< Updated upstream
         # man_pre = ManualPreSynthesis()
         # lookup_df: pd.DataFrame = pd.read_excel(os.path.join(SMRY_DIR, 'ManSynth_lookup.xlsx'))
 
-        man_frags: List[dict] = [frag for frag in frag_dicts if frag['$/mol'] == 0]
-        if len(man_frags) > 0:
-            print('Manual fragments:', man_frags)
-=======
         man_blocks: List[dict] = [block for block in block_dicts if block['Manual?'] == 'Yes']
-        if len(man_blocks) > 0:
-            print('Manual blocks:', man_blocks)
->>>>>>> Stashed changes
+        # if len(man_blocks) > 0:
+        #     print('Manual blocks:', man_blocks)
 
         # if any(molecule in man_blocks for molecule in lookup_df['SMILES']):
         for block in man_blocks:
             man_mol = {'score': 0, '$/mol': 0}
             print('ATTN:    Manually synthesized starting material!')
-<<<<<<< Updated upstream
-            self.draw_mols([frag['SMILES']])
-            man_mol['score'], frag['$/mol'], mandists_list = self.get_man_synth(frag['SMILES'],
-                                                                                target_smiles,
-                                                                                scale)
-=======
-            self.draw_mols([block['SMILES']])
+            General().draw_mols([block['SMILES']])
             man_mol['score'], man_Cmoney, mandists_list, man_steps = self.get_man_synth(block['SMILES'],
                                                                                         target_smiles,
                                                                                         scale)
->>>>>>> Stashed changes
             # print(f"Added {man_mol['score']} to StepScore.")
             # print(f"Cost of manual block is {block['$/mol']} $/mol.")
             man_stepscore += man_mol['score']
-<<<<<<< Updated upstream
-=======
+
             # print(man_Cmoney)
             # block['$/mol'] = 0
             # print(block['$/mol'])
->>>>>>> Stashed changes
 
         sm_eqs: List[float] = [sm['eq'] for sm in sm_list]
         # eq_mult: int = self.stoichiometry(block_dicts, rxn_type)
@@ -686,10 +769,7 @@ class Calculate:
                                           multiplier)
         # print('cost_materials:', cost_materials)
         cost: float = cost_time * cost_money * cost_materials
-<<<<<<< Updated upstream
-=======
         # print('cost:', cost)
->>>>>>> Stashed changes
 
         # Distance "traveled" in chemical space by reaction
         sims_list: List[float] = [self.similarity(sm['SMILES'], product_smiles, target_smiles) for sm in block_dicts]
@@ -706,7 +786,6 @@ class Calculate:
 
         MW: float = Descriptors.MolWt(Chem.MolFromSmiles(product_smiles))
 
-<<<<<<< Updated upstream
         molarCost = yld * cost_money / scale
 
         product_dict: dict = {
@@ -719,7 +798,7 @@ class Calculate:
             'CAD': 0,
             '$/mol': molarCost
             }
-=======
+
         if manual is True:
             man_steps += 1
         # molarCost = yld * cost_money / scale
@@ -734,13 +813,12 @@ class Calculate:
                               'CAD': 0,
                               '$/mol': 0
                               }
->>>>>>> Stashed changes
-
         self.update_inventory(product_smiles, product_dict)
 
         self.inv.to_csv(self.inv_path, index=False)
 
         stepscore_results: dict = {
+                                   'reaction': rxn_type,
                                    'StepScore': step_score,
                                    'cost': cost,
                                    'time': cost_time,
@@ -775,49 +853,64 @@ class Calculate:
         mandists_l: List[float] = [item for sublist in mandists_nested for item in sublist]
         all_distances: List[float] = distances_list + mandists_l
 
-        cost_factor: float = sum(stepscores_list) / total_yield
-        distance_factor: float = max(all_distances) / np.mean(all_distances)
+        sum_stepscores = sum(stepscores_list)
+        cost_factor: float = sum_stepscores / total_yield
+        maxDrxn = max(all_distances)
+        avgDrxn = np.mean(all_distances)
+        # TODO: How to account for longer routes having lower RS if they have large max Drxn?
+        # num_steps = len(all_distances)
+        # distance_factor: float = maxDrxn / (avgDrxn + num_steps)
+        distance_factor: float = maxDrxn / avgDrxn
         route_score: float = cost_factor / distance_factor
-        return route_score, total_man_steps
 
-    def Process(self,
-                targets_df: pd.DataFrame,
-                i: int,
-                steps_list: List[float],
-                n_target: float
-                ) -> pd.DataFrame:
-        """Do some final processing for the route in the full dataframe.
+        routescore_results = {'RouteScore': route_score,
+                              'Drxn factor': distance_factor,
+                              'max Drxn': maxDrxn,
+                              'avg Drxn': avgDrxn,
+                              'Cost factor': cost_factor,
+                              'sum Stepscores': sum_stepscores,
+                              'n_Target': total_yield}
+        return routescore_results, total_man_steps
 
-        Adds the following data:
-            Isolated: mass of isolated target molecule
-            RouteScore: the RouteScore
-            log(RouteScore): log10 of the RouteScore
-            Step details: list of all stepscore_results dictionaries
-            Total manual steps: total number of manual steps in the route
+    # def Process(self,
+    #             targets_df: pd.DataFrame,
+    #             i: int,
+    #             steps_list: List[float],
+    #             n_target: float
+    #             ) -> pd.DataFrame:
+    #     """Do some final processing for the route in the full dataframe.
 
-        Parameters
-        ----------
-        targets_df: Full dataframe of all target molecules
-        i:          Index of the target molecule in the df
-        steps_list: List containing details for all the steps along the route
-        n_target:   Quantity (mols) of the target molecule obtained
+    #     Adds the following data:
+    #         Isolated: mass of isolated target molecule
+    #         RouteScore: the RouteScore
+    #         log(RouteScore): log10 of the RouteScore
+    #         Step details: list of all stepscore_results dictionaries
+    #         Total manual steps: total number of manual steps in the route
 
-        Returns
-        -------
-        targets_df: Updated full dataframe of all target molecules
-        """
-        isolated: float = n_target * Descriptors.MolWt(Chem.MolFromSmiles(targets_df.at[i, 'pentamer']))
-        # print(f'Isolated yield:    {isolated} g')
-        route_score, total_man = self.RouteScore(steps_list, n_target)
-        # print(total_man)
+    #     Parameters
+    #     ----------
+    #     targets_df: Full dataframe of all target molecules
+    #     i:          Index of the target molecule in the df
+    #     steps_list: List containing details for all the steps along the route
+    #     n_target:   Quantity (mols) of the target molecule obtained
 
-        targets_df.at[i, 'Isolated'] = isolated
-        targets_df.at[i, 'RouteScore'] = route_score
-        targets_df.at[i, 'log(RouteScore)'] = np.log10(route_score)
-        targets_df.at[i, 'Step details'] = steps_list
-        targets_df.at[i, 'Total manual steps'] = int(total_man)
-        targets_df.at[i, 'Successfully processed?'] = True
-        return targets_df
+    #     Returns
+    #     -------
+    #     targets_df: Updated full dataframe of all target molecules
+    #     """
+    #     isolated: float = n_target * Descriptors.MolWt(Chem.MolFromSmiles(targets_df.at[i, 'pentamer']))
+    #     # print(f'Isolated yield:    {isolated} g')
+    #     routescore_details, total_man = self.RouteScore(steps_list, n_target)
+    #     # print(total_man)
+
+    #     targets_df.at[i, 'Isolated'] = isolated
+    #     targets_df.at[i, 'RouteScore'] = routescore_details['RouteScore']
+    #     targets_df.at[i, 'log(RouteScore)'] = np.log10(routescore_details['RouteScore'])
+    #     targets_df.at[i, 'Step details'] = steps_list
+    #     targets_df.at[i, 'RouteScore details'] = routescore_details
+    #     targets_df.at[i, 'Total manual steps'] = int(total_man)
+    #     targets_df.at[i, 'Successfully processed?'] = True
+    #     return targets_df
 
 
 class Properties:

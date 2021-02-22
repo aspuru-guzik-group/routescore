@@ -18,14 +18,20 @@ fp['log_kR'] = np.log10(fp['fluo_rate_ns'])
 fig = plt.figure()
 ax3D = fig.add_subplot(111, projection='3d')
 
-thPk = 0
-thRS = 11
-thOvlp = 1
-thRate = -9
+# thPk = 0
+# thRS = 11
+# thOvlp = 1
+# thRate = -9
+
 # thPk = 0.67
 # thRS = 4.48
 # thOvlp = 0.20
 # thRate = -0.80
+
+thPk = 0.67
+thRS = 5
+thOvlp = 0.20
+thRate = -0.80
 
 subSpace = fp[(fp['fluo_peak_1'] > thPk) & (fp['log_RS'] < thRS) & (fp['overlap'] < thOvlp) & (fp['log_kR'] > thRate)]
 rmSpace = fp[~(fp['fluo_peak_1'] > thPk) | ~(fp['log_RS'] < thRS) | ~(fp['overlap'] < thOvlp) | ~(fp['log_kR'] > thRate)]
@@ -58,7 +64,7 @@ ax3D.set_xlabel('log(RouteScore)')
 ax3D.set_xlim(3.75, 8.25)
 ax3D.set_ylabel('Spectral overlap')
 ax3D.set_zlabel('log(Fluorescence rate)')
-# ax3D.set_title(f'thPk={thPk}, thRS={thRS}, thOvlp={thOvlp}, thRate={thRate} \n{len(subSpace)} molecules = {round(coverage*100, 1)}% of space')
+ax3D.set_title(f'thPk={thPk}, thRS={thRS}, thOvlp={thOvlp}, thRate={thRate} \n{len(subSpace)} molecules = {round(coverage*100, 1)}% of space')
 print(f'thPk={thPk}, thRS={thRS}, thOvlp={thOvlp}, thRate={thRate} \n{len(subSpace)} molecules = {round(coverage*100, 1)}% of space')
 # ax3D.legend(
 # 	        bbox_to_anchor=(0.9, 0),
