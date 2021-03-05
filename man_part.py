@@ -94,6 +94,7 @@ sb_man['Manual steps'] = 'Both'
 # sb_man['Manual steps'] = 3
 
 dfs = [base, base_man, s, s_man, b, b_man, bs, bs_man, sb, sb_man]
-df_names = ['Base', 'Base_man', 'SNAr', 'SNAr_man', 'Buch', 'Buch_man', 'B-S', 'B-S_man', 'S-B', 'S-B_man']
+df_names = ['Base', 'Base_man', 'SNAr', 'SNAr_man', 'Buch',
+            'Buch_man', 'B-S', 'B-S_man', 'S-B', 'S-B_man']
 for df, name in zip(dfs, df_names):
     df.to_pickle(os.path.join(RSLT_DIR, f'{name}.pkl'))

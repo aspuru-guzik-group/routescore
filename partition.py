@@ -119,13 +119,19 @@ for i in range(len(sb)):
 print('sb:', len(bs))
 print('\n––––––––––––––––––––––––––––––––––––––\n')
 
-n.to_csv(os.path.join(TGT_DIR, 'targets_Base_MASTER.csv'), index=False)
-n.to_pickle(os.path.join(TGT_DIR, 'targets_Base.pkl'))
-s.to_csv(os.path.join(TGT_DIR, 'targets_SNAr_MASTER.csv'), index=False)
-s.to_pickle(os.path.join(TGT_DIR, 'targets_SNAr.pkl'))
-b.to_csv(os.path.join(TGT_DIR, 'targets_Buch_MASTER.csv'), index=False)
-b.to_pickle(os.path.join(TGT_DIR, 'targets_Buch.pkl'))
-bs.to_csv(os.path.join(TGT_DIR, 'targets_B-S_MASTER.csv'), index=False)
-bs.to_pickle(os.path.join(TGT_DIR, 'targets_B-S.pkl'))
-sb.to_csv(os.path.join(TGT_DIR, 'targets_S-B_MASTER.csv'), index=False)
-sb.to_pickle(os.path.join(TGT_DIR, 'targets_S-B.pkl'))
+# n.to_csv(os.path.join(TGT_DIR, 'targets_Base_MASTER.csv'), index=False)
+# n.to_pickle(os.path.join(TGT_DIR, 'targets_Base.pkl'))
+# s.to_csv(os.path.join(TGT_DIR, 'targets_SNAr_MASTER.csv'), index=False)
+# s.to_pickle(os.path.join(TGT_DIR, 'targets_SNAr.pkl'))
+# b.to_csv(os.path.join(TGT_DIR, 'targets_Buch_MASTER.csv'), index=False)
+# b.to_pickle(os.path.join(TGT_DIR, 'targets_Buch.pkl'))
+# bs.to_csv(os.path.join(TGT_DIR, 'targets_B-S_MASTER.csv'), index=False)
+# bs.to_pickle(os.path.join(TGT_DIR, 'targets_B-S.pkl'))
+# sb.to_csv(os.path.join(TGT_DIR, 'targets_S-B_MASTER.csv'), index=False)
+# sb.to_pickle(os.path.join(TGT_DIR, 'targets_S-B.pkl'))
+
+route_dfs = [n, s, b, bs, sb]
+names = ['Base', 'SNAr', 'Buch', 'B-S', 'S-B']
+for df, name in zip(route_dfs, names):
+    df.to_csv(os.path.join(TGT_DIR, f'target_{name}_BLANK.csv'))
+    df.to_pickle(os.path.join(TGT_DIR, f'targets_{name}.pkl'))

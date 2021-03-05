@@ -20,6 +20,7 @@ PROP_DIR = os.path.join(HERE, 'Properties')
 
 # Files
 props_dict: dict = pickle.load(open(os.path.join(PROP_DIR, 'spectra_dict.pkl'), 'rb'))
+inv_path = os.path.join(INV_DIR, 'Inventory.csv')
 
 
 class General:
@@ -41,7 +42,7 @@ class General:
         pkl = pickle.load(open(load_path, 'rb'))
         return pkl
 
-    def draw_mols(self, smiles_list: list) -> None:
+    def draw_mols(self, smiles_list: List[str]) -> None:
         """Draw molecular structures inline.
 
         Parameters
@@ -59,7 +60,7 @@ class General:
         img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
         display(img)
 
-    def prep_details(self, df_file: os.PathLike):
+    def preProcess(self, df_file: os.PathLike):
         """Prepare dataframe with routes for details dictionaries.
 
         Parameters
@@ -139,8 +140,10 @@ class Reaction_Templates:
         patts: dict = {'Suzuki': [Chem.MolFromSmarts('cBr'),
                                   Chem.MolFromSmarts('cI')],
                        'deBoc': [Chem.MolFromSmiles('O=C(OC(C)(C)C)n1c2c(cc1)cccc2')],
-                       'BHA': [Chem.MolFromSmiles('[H]n1c2c(cc1)cccc2')],
-                       'SNAr': [Chem.MolFromSmarts('cF')]
+                       'BHA-H': [Chem.MolFromSmiles('[H]n1c2c(cc1)cccc2')],
+                       'BHA-Py': [Chem.MolFromSmiles('n1(c2nccnc2)ccc3ccccc13')],
+                       'SNAr-F': [Chem.MolFromSmarts('cF')],
+                       'SNAr-Cz': [Chem.MolFromSmarts('cn(c1c2cccc1)c3c2cccc3')]
                        }
         mol = Chem.MolFromSmiles(smiles)
         matches_list: List[int] = [len(mol.GetSubstructMatches(substruct))
@@ -149,7 +152,7 @@ class Reaction_Templates:
         mult: int = sum(matches_list)
         # print(f'{rxn} multiplier:', mult)
         if mult == 0:
-            Calculate().draw_mols([mol])
+            General().draw_mols([smiles])
         return mult
 
     def wingSuzuki(self, smilesA: str, smilesB: str, smilesAB: str, smilesTgt: str, scale: float) -> Tuple[dict, float]:
@@ -161,7 +164,7 @@ class Reaction_Templates:
         smilesB:   SMILES of the B reactant molecule
         smilesAB:  SMILES of the product (A-B) molecule
         smilesTgt: SMILES of the target molecule
-        scale:  scale of the reaction
+        scale:  scale of the reaction (mol)
 
         Returns
         -------
@@ -196,7 +199,7 @@ class Reaction_Templates:
         smilesC:       SMILES of the C reactant molecule
         smilesABCBA:   SMILES of the product (A-B-C-B-A) molecule
         smilesTgt:     SMILES of the target molecule
-        scale:  scale of the reaction
+        scale:  scale of the reaction (mol)
 
         Returns
         -------
@@ -279,7 +282,11 @@ class Reaction_Templates:
                                {'smiles': smilesNH, 'eq': 1},
                                {'smiles': smilesX, 'eq': 3}
                                ]
-        rxn_sites = self.stoichiometry(smilesNH, 'BHA')
+        rxn_sites = self.stoichiometry(smilesNH, 'BHA-H')
+        # rxn_sites = self.stoichiometry(smilesBHA, 'BHA-Py')
+        # print('rxn_sites:', rxn_sites)
+        # if rxn_sites != 2:
+        #     print('BHA reaction sites not 2!', rxn_sites)
         sm_list[1]['eq'] = rxn_sites * sm_list[1]['eq']
         # print('New eq:', sm_list[1]['eq'])
         BHA_scale: float = scale / sm_list[0]['eq']
@@ -315,7 +322,12 @@ class Reaction_Templates:
                                {'smiles': smilesAr, 'eq': 1},
                                {'smiles': smilesNu, 'eq': 2}
                                ]
-        rxn_sites = self.stoichiometry(smilesAr, 'SNAr')
+        # HACK: In the case of SNAr reaction, we count the number of Cz groups in the product...
+        # rxn_sites = self.stoichiometry(smilesAr, 'SNAr-F')
+        rxn_sites = self.stoichiometry(smilesSNAr, 'SNAr-Cz')
+        # print('rxn_sites:', rxn_sites)
+        # if rxn_sites > 4:
+            # print(f'ATTN! rxn_sites > 4!')
         sm_list[1]['eq'] = rxn_sites * sm_list[1]['eq']
         # print('New eq:', sm_list[1]['eq'])
         SNAr_scale: float = scale / sm_list[0]['eq']
@@ -343,25 +355,13 @@ class Calculate:
     a: float = C_H / C_M
     a_: float = 1 / a
 
-    inv_path = os.path.join(INV_DIR, 'Inventory.csv')
-    inv = None
-    inv = pd.read_csv(inv_path)
+    # inv_path = os.path.join(INV_DIR, 'Inventory.csv')
+    # inv = None
+    # inv = pd.read_csv(inv_path)
 
-    # def load_pkl(self, folder: str, file: str):
-    #     """Load a .pkl file.
-
-    #     Parameters
-    #     ----------
-    #     folder:     Directory where the file is located. Must be within HERE.
-    #     file:       Filname of the .pkl file
-
-    #     Returns
-    #     -------
-    #     pkl: Contents of the .pkl file
-    #     """
-    #     load_path = os.path.join(HERE, folder, f'{file}.pkl')
-    #     pkl = pickle.load(open(load_path, 'rb'))
-    #     return pkl
+    def __init__(self):
+        self.inv = None
+        self.inv = pd.read_csv(inv_path)
 
     def get_block_info(self, smilesBlock: str) -> dict:
         """Get block informtion dict from inventory dataframe.
@@ -374,12 +374,15 @@ class Calculate:
         -------
         block_info: Dictionary containing inventory information for smilesBlock molecule
         """
+        # print(f'Inventory size (reading): {len(self.inv)}')
         block_entry = self.inv[self.inv['SMILES'] == smilesBlock]
 
-        # print('get block smiles:', smilesBlock)
         # General().draw_mols([smilesBlock])
+        # print('get block smiles:', smilesBlock)
 
+        # print(f'length of block_entry:    {len(block_entry)}')
         block_info: dict = block_entry.to_dict(orient='records')[0]
+
         return block_info
 
     def update_inventory(self, mol_smiles: str, mol_dict: dict) -> None:
@@ -394,51 +397,16 @@ class Calculate:
         -------
         Nothing
         """
+        # orig_len = len(self.inv)
         if mol_smiles not in self.inv.SMILES.values:
+            # General().draw_mols([mol_smiles])
+            # print(f'Updating inventory: {mol_smiles}')
             self.inv = self.inv.append(mol_dict, ignore_index=True)
-
-    # def draw_mols(self, smiles_list: list) -> None:
-    #     """Draw molecular structures inline.
-
-    #     Parameters
-    #     ----------
-    #     mol_list: List of SMILES to draw
-
-    #     Returns
-    #     -------
-    #     Nothing
-    #     """
-    #     # for i in range(len(mol_list)):
-    #     #     mol_list[i] = Chem.MolFromSmiles(mol_list[i])
-    #     mol_list = [Chem.MolFromSmiles(smiles) for smiles in smiles_list]
-
-    #     img = Draw.MolsToGridImage(mol_list, molsPerRow=3)
-    #     display(img)
-
-    # def stoichiometry(self, sms: List[dict], rxn: str) -> int:
-    #     """Determine the number of reaction sites.
-
-    #     Searches the molecules in 'sms' list for substructures relevant to the reaction, and sets
-    #     'n_eqs' to the maximum value found.
-
-    #     Parameters
-    #     ----------
-    #     sms: List of starting materials
-    #     rxn: Name of reaction to be matched to a pre-defined dictionary with substructures to count
-
-    #     Returns
-    #     -------
-    #     n_eqs: Number of reaction sites on the molecule
-    #     """
-    #     # TODO: Load 'patts' from an external .pkl file.
-    #     patts: dict = {'Suzuki': Chem.MolFromSmiles('CBr'),
-    #                    'Buchwald_deprotection': Chem.MolFromSmiles('O=C(OC(C)(C)C)n1c2c(cc1)cccc2'),
-    #                    'Buchwald': Chem.MolFromSmiles('[H]n1c2c(cc1)cccc2'),
-    #                    'SNAr': Chem.MolFromSmarts('cF')
-    #                    }
-    #     n_eqs: int = max([len(Chem.MolFromSmiles(sm['SMILES']).GetSubstructMatches(patts[rxn])) for sm in sms])
-    #     # print('multiplier:', n_eqs)
-    #     return n_eqs
+        # else:
+            # print(f'{mol_smiles} already here')
+        # del_len = len(self.inv) - orig_len
+        # print(f'Change in inventory size: {del_len}')
+        # print(f'Inventory size (updating): {len(self.inv)}')
 
     def TTC(self, time_H: float, time_M: float) -> float:
         """Calculate total time cost (TTC) for the reaction.
@@ -647,12 +615,12 @@ class Calculate:
                 #     General().draw_mols([row, man_pdt_smiles, tgt_smiles])
 
             man_dist: float = min(sims_list)
-            if man_dist > 4:
-                idx = sims_list.index(min(sims_list))
-                really_efficient_mol = manSM_df['SMILES'][idx]
-                General().draw_mols([really_efficient_mol, man_pdt_smiles, tgt_smiles])
+            # if man_dist > 4:
+            #     idx = sims_list.index(min(sims_list))
+            #     really_efficient_mol = manSM_df['SMILES'][idx]
+            #     General().draw_mols([really_efficient_mol, man_pdt_smiles, tgt_smiles])
             l_man_dist.append(man_dist)
-            print(l_man_dist)
+            # print(l_man_dist)
 
             score += cost
             # man_molarCost = man_yld * man_money / man_scale
@@ -709,6 +677,9 @@ class Calculate:
         man_stepscore: float = 0
         mandists_list: List[float] = []
 
+        # General().draw_mols([sm['smiles'] for sm in sm_list])
+        # print([sm['smiles'] for sm in sm_list])
+
         block_dicts: List[dict] = [self.get_block_info(sm['smiles']) for sm in sm_list]
         # print(block_dicts)
 
@@ -731,8 +702,8 @@ class Calculate:
         # if any(molecule in man_blocks for molecule in lookup_df['SMILES']):
         for block in man_blocks:
             man_mol = {'score': 0, '$/mol': 0}
-            print('ATTN:    Manually synthesized starting material!')
-            General().draw_mols([block['SMILES']])
+            # print('ATTN:    Manually synthesized starting material!')
+            # General().draw_mols([block['SMILES']])
             man_mol['score'], man_Cmoney, mandists_list, man_steps = self.get_man_synth(block['SMILES'],
                                                                                         target_smiles,
                                                                                         scale)
@@ -786,18 +757,17 @@ class Calculate:
 
         MW: float = Descriptors.MolWt(Chem.MolFromSmiles(product_smiles))
 
-        molarCost = yld * cost_money / scale
+        # molarCost = yld * cost_money / scale
 
-        product_dict: dict = {
-            'Frag_type': '-',
-            'Frag_num': 0,
-            'SMILES': product_smiles,
-            'Name': '-',
-            'g/mol': MW,
-            'Quantity': 0,
-            'CAD': 0,
-            '$/mol': molarCost
-            }
+        # product_dict: dict = {
+        #     'Block_num': 0,
+        #     'SMILES': product_smiles,
+        #     'Name': '-',
+        #     'g/mol': MW,
+        #     'Quantity': 0,
+        #     'CAD': 0,
+        #     '$/mol': molarCost
+        #     }
 
         if manual is True:
             man_steps += 1
@@ -811,11 +781,12 @@ class Calculate:
                               'g/mol': MW,
                               'Quantity': 0,
                               'CAD': 0,
-                              '$/mol': 0
+                              '$/mol': 0,
+                              'Manual?': ''
                               }
         self.update_inventory(product_smiles, product_dict)
 
-        self.inv.to_csv(self.inv_path, index=False)
+        self.inv.to_csv(inv_path, index=False)
 
         stepscore_results: dict = {
                                    'reaction': rxn_type,
@@ -861,7 +832,10 @@ class Calculate:
         # num_steps = len(all_distances)
         # distance_factor: float = maxDrxn / (avgDrxn + num_steps)
         distance_factor: float = maxDrxn / avgDrxn
-        route_score: float = cost_factor / distance_factor
+
+        # HACK: For now, simply removing distance from the route_score equation
+        # route_score: float = cost_factor / distance_factor
+        route_score: float = cost_factor
 
         routescore_results = {'RouteScore': route_score,
                               'Drxn factor': distance_factor,
@@ -871,46 +845,6 @@ class Calculate:
                               'sum Stepscores': sum_stepscores,
                               'n_Target': total_yield}
         return routescore_results, total_man_steps
-
-    # def Process(self,
-    #             targets_df: pd.DataFrame,
-    #             i: int,
-    #             steps_list: List[float],
-    #             n_target: float
-    #             ) -> pd.DataFrame:
-    #     """Do some final processing for the route in the full dataframe.
-
-    #     Adds the following data:
-    #         Isolated: mass of isolated target molecule
-    #         RouteScore: the RouteScore
-    #         log(RouteScore): log10 of the RouteScore
-    #         Step details: list of all stepscore_results dictionaries
-    #         Total manual steps: total number of manual steps in the route
-
-    #     Parameters
-    #     ----------
-    #     targets_df: Full dataframe of all target molecules
-    #     i:          Index of the target molecule in the df
-    #     steps_list: List containing details for all the steps along the route
-    #     n_target:   Quantity (mols) of the target molecule obtained
-
-    #     Returns
-    #     -------
-    #     targets_df: Updated full dataframe of all target molecules
-    #     """
-    #     isolated: float = n_target * Descriptors.MolWt(Chem.MolFromSmiles(targets_df.at[i, 'pentamer']))
-    #     # print(f'Isolated yield:    {isolated} g')
-    #     routescore_details, total_man = self.RouteScore(steps_list, n_target)
-    #     # print(total_man)
-
-    #     targets_df.at[i, 'Isolated'] = isolated
-    #     targets_df.at[i, 'RouteScore'] = routescore_details['RouteScore']
-    #     targets_df.at[i, 'log(RouteScore)'] = np.log10(routescore_details['RouteScore'])
-    #     targets_df.at[i, 'Step details'] = steps_list
-    #     targets_df.at[i, 'RouteScore details'] = routescore_details
-    #     targets_df.at[i, 'Total manual steps'] = int(total_man)
-    #     targets_df.at[i, 'Successfully processed?'] = True
-    #     return targets_df
 
 
 class Properties:
