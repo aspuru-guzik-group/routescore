@@ -26,7 +26,7 @@ all_dfs = pd.DataFrame()
 for df in results:
     all_dfs = all_dfs.append(df, ignore_index=True)
 
-bottom = 3.5
+bottom = 4
 top = 8.5
 
 ax = sns.violinplot(x='Route type',

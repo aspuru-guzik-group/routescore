@@ -18,7 +18,7 @@ TARGETS_FILE = os.path.join(TGT_DIR, 'targets_B-S.pkl')
 # targets['Step details'] = targets['Step details'].astype('object')
 # targets['RouteScore details'] = ''
 # targets['RouteScore details'] = targets['RouteScore details'].astype('object')
-targets: pd.DataFrame = gen.prep_details(TARGETS_FILE)
+targets: pd.DataFrame = gen.preProcess(TARGETS_FILE)
 
 num_targets = len(targets.index)
 

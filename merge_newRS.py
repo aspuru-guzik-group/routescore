@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import datetime
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 RSLT_DIR = os.path.join(HERE, 'Results')
@@ -16,4 +17,5 @@ for i in range(len(props)):
     new_rs = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
     props.at[i, 'route_score'] = new_rs
 
-props.to_pickle(os.path.join(PROP_DIR, '20210216_full_props.pkl'))
+today = datetime.datetime.today().strftime('%Y%m%d')
+props.to_pickle(os.path.join(PROP_DIR, f'{today}_full_props.pkl'))
