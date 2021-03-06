@@ -1,11 +1,9 @@
 import os
+import shutil
 from typing import List
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-from routescore import General
-
-gen = General()
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TGT_DIR = os.path.join(HERE, 'Targets')
@@ -13,6 +11,14 @@ BRKDWN_DIR = os.path.join(HERE, 'BSvsSB_breakdown')
 
 bs = pd.read_pickle(os.path.join(TGT_DIR, 'targets_B-S.pkl'))
 sb = pd.read_pickle(os.path.join(TGT_DIR, 'targets_S-B.pkl'))
+
+# Deleting previous images and directories
+shutil.rmtree(BRKDWN_DIR)
+# Creating new directory tree
+os.mkdir(BRKDWN_DIR)
+for step_detail in ['time', 'money', 'materials']:
+    for rxn in ['Buchwald_deprotection', 'Buchwald', 'SNAr']:
+        os.makedirs(os.path.join(BRKDWN_DIR, step_detail, rxn))
 
 
 def extract_details(df):
@@ -49,11 +55,9 @@ def Vals2Mols(df: pd.DataFrame, df_name: str, rxn: str, component: str, vals_lis
                 smiles_list.append(df['pentamer'][i])
 
         mols_list = [Chem.MolFromSmiles(smiles) for smiles in smiles_list]
-        gen.draw_mols(smiles_list)
+        # gen.draw_mols(smiles_list)
 
-        # img = Draw.MolsToGridImage(mols_list, molsPerRow=5, subImgSize=(500, 500), returnPNG=True)
-        img = Draw.MolsToGridImage(mols_list, molsPerRow=5, subImgSize=(500, 500), returnPNG=True)
-        # img = Draw.MolsToGridImage(mols_list)
+        img = Draw.MolsToGridImage(mols_list, molsPerRow=5, subImgSize=(500, 500), useSVG=False)
         img.save(os.path.join(BRKDWN_DIR,
                               component,
                               rxn,
@@ -64,7 +68,6 @@ bs_RSinfo = extract_details(bs)
 sb_RSinfo = extract_details(sb)
 
 for df, name in zip([bs_RSinfo, sb_RSinfo], ['bs', 'sb']):
-    # for step_detail in ['StepScore', 'cost', 'time', 'money', 'materials']:
     for step_detail in ['time', 'money', 'materials']:
         for rxn in ['Buchwald_deprotection', 'Buchwald', 'SNAr']:
             Vals2Mols(df,

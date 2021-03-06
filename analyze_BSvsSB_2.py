@@ -65,7 +65,8 @@ bs_RSinfo = extract_details(bs)
 sb_RSinfo = extract_details(sb)
 
 # for step_detail in ['StepScore', 'cost', 'time', 'money', 'materials', 'distance']:
-for step_detail in ['StepScore', 'cost', 'time', 'money', 'materials']:
+# for step_detail in ['StepScore', 'cost', 'time', 'money', 'materials']:
+for step_detail in ['time', 'money', 'materials']:
     for rxn in ['Buchwald_deprotection', 'Buchwald', 'SNAr']:
         plot_step_details(bs_RSinfo, sb_RSinfo, rxn, step_detail)
 

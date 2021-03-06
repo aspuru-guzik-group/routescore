@@ -282,8 +282,8 @@ class Reaction_Templates:
                                {'smiles': smilesNH, 'eq': 1},
                                {'smiles': smilesX, 'eq': 3}
                                ]
-        rxn_sites = self.stoichiometry(smilesNH, 'BHA-H')
-        # rxn_sites = self.stoichiometry(smilesBHA, 'BHA-Py')
+        # rxn_sites = self.stoichiometry(smilesNH, 'BHA-H')
+        rxn_sites = self.stoichiometry(smilesBHA, 'BHA-Py')
         # print('rxn_sites:', rxn_sites)
         # if rxn_sites != 2:
         #     print('BHA reaction sites not 2!', rxn_sites)
