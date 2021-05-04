@@ -1,26 +1,21 @@
-import os, pickle
+import os
 from typing import List
 import pandas as pd
-from routescore import General, Reaction_Templates, Calculate, Properties, Analysis
+from routescore import General, Reaction_Templates, Calculate
 
 gen = General()
 rxn = Reaction_Templates()
 calc = Calculate()
-pr = Properties()
-an = Analysis()
 
+# Define directories
 HERE = os.path.abspath(os.path.dirname(__file__))
 TGT_DIR = os.path.join(HERE, 'Targets')
 TARGETS_FILE = os.path.join(TGT_DIR, 'targets_SNAr.pkl')
 
-
-# targets: pd.DataFrame = pd.read_pickle(TARGETS_FILE)
-# targets['Step details'] = ''
-# targets['Step details'] = targets['Step details'].astype('object')
+# Load dataframe and add details columns
 targets: pd.DataFrame = gen.preProcess(TARGETS_FILE)
 
-num_targets = len(targets.index)
-
+# Run RouteScore calculations
 print('Calculating RouteScore(s)...')
 for i in range(len(targets.index)):
     steps: List[dict] = []
@@ -36,7 +31,6 @@ for i in range(len(targets.index)):
                                            target,
                                            scale
                                            )
-
     steps.append(step1)
 
     # step 2
@@ -48,7 +42,6 @@ for i in range(len(targets.index)):
                                                target,
                                                scale
                                                )
-
     steps.append(step2)
 
     # step 3
@@ -60,11 +53,9 @@ for i in range(len(targets.index)):
                                      target,
                                      scale
                                      )
-
     steps.append(step3)
 
     final_scale = NextStep_scale
-
     targets = gen.Process(
                           targets,
                           i,
@@ -72,8 +63,4 @@ for i in range(len(targets.index)):
                           final_scale
                           )
 
-targets = pr.get_props(targets)
-
 targets.to_pickle(TARGETS_FILE)
-
-an.plotting(targets)
