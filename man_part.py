@@ -1,22 +1,26 @@
 import os
 import pandas as pd
 
+# Define directories
 HERE = os.path.abspath(os.path.dirname(__file__))
 RSLT_DIR = os.path.join(HERE, 'Results')
 TGT_DIR = os.path.join(HERE, 'Targets')
 
+# Import dataframes for the different route types
 base: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_Base.pkl'))
 s: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_SNAr.pkl'))
 b: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_Buch.pkl'))
 bs: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_B-S.pkl'))
 sb: pd.DataFrame = pd.read_pickle(os.path.join(TGT_DIR, 'targets_S-B.pkl'))
 
+# List of manually-synthesized "C" blocks
 c_list = [
           'Brc1ccc2oc(Br)cc2c1',
           'C[Si](C)(c1ccc(Br)cc1)c1ccc(Br)cc1',
           'C[Si](C)(c1ccccc1Br)c1ccccc1Br'
           ]
 
+# Split imported dataframes between manual "C" blocks and fully automated
 print('base:', len(base))
 base_man = pd.DataFrame()
 base_man = base[base.c.isin(c_list)]
@@ -55,44 +59,44 @@ print('sb man', len(sb_man))
 base['Route type'] = 'iSMC auto.'
 base['Type'] = 'Automated'
 base['Manual steps'] = 'None'
-# base['Manual steps'] = 0
+
 base_man['Route type'] = 'iSMC man.'
 base_man['Type'] = 'Manual'
 base_man['Manual steps'] = 'Before'
-# base_man['Manual steps'] = 1
+
 b['Route type'] = 'BHA'
 b['Type'] = 'Automated'
 b['Manual steps'] = 'After'
-# b['Manual steps'] = 1
+
 b_man['Route type'] = 'BHA'
 b_man['Type'] = 'Manual'
 b_man['Manual steps'] = 'Both'
-# b_man['Manual steps'] = 2
+
 s['Route type'] = 'SNAr'
 s['Type'] = 'Automated'
 s['Manual steps'] = 'After'
-# s['Manual steps'] = 1
+
 s_man['Route type'] = 'SNAr'
 s_man['Type'] = 'Manual'
 s_man['Manual steps'] = 'Both'
-# s_man['Manual steps'] = 2
+
 bs['Route type'] = 'B-S'
 bs['Type'] = 'Automated'
 bs['Manual steps'] = 'After'
-# bs['Manual steps'] = 2
+
 bs_man['Route type'] = 'B-S'
 bs_man['Type'] = 'Manual'
 bs_man['Manual steps'] = 'Both'
-# bs_man['Manual steps'] = 3
+
 sb['Route type'] = 'S-B'
 sb['Type'] = 'Automated'
 sb['Manual steps'] = 'After'
-# sb['Manual steps'] = 2
+
 sb_man['Route type'] = 'S-B'
 sb_man['Type'] = 'Manual'
 sb_man['Manual steps'] = 'Both'
-# sb_man['Manual steps'] = 3
 
+# Save results
 dfs = [base, base_man, s, s_man, b, b_man, bs, bs_man, sb, sb_man]
 df_names = ['Base', 'Base_man', 'SNAr', 'SNAr_man', 'Buch',
             'Buch_man', 'B-S', 'B-S_man', 'S-B', 'S-B_man']
