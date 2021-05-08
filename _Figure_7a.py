@@ -21,20 +21,20 @@ thPk = 0.67
 thRS = 4.44
 thOvlp = 0.20
 thRate = -0.80
-print(f'thPk={thPk}, thRS={thRS}, thOvlp={thOvlp}, thRate={thRate} \n{len(subSpace)} molecules = {round(coverage*100, 1)}% of space')
 
 # Filter dataframes based on thresholds
 subSpace = fp[(fp['fluo_peak_1'] > thPk) & (fp['log_RS'] < thRS) & (fp['overlap'] < thOvlp) & (fp['log_kR'] > thRate)]
 rmSpace = fp[~(fp['fluo_peak_1'] > thPk) | ~(fp['log_RS'] < thRS) | ~(fp['overlap'] < thOvlp) | ~(fp['log_kR'] > thRate)]
 
+# Calculate % tolerable space
+coverage = len(subSpace) / len(fp)
+print(f'thPk={thPk}, thRS={thRS}, thOvlp={thOvlp}, thRate={thRate} \n{len(subSpace)} molecules = {round(coverage*100, 1)}% of space')
+
 # Best entries for each property
 maxPkScr = fp[fp['fluo_peak_1'] == max(fp['fluo_peak_1'])]
 minCost = fp[fp['route_score'] == min(fp['route_score'])]
 minOvlp = fp[fp['overlap'] == min(fp['overlap'])]
-maxRate = fp[fp['fluo_rate_ns'] == max(fp['fluo_rate_ns'])]
-
-# Calculate % tolerable space
-coverage = len(subSpace) / len(fp)
+maxRate = fp[fp['log_kR'] == max(fp['log_kR'])]
 
 # Create figure
 fig = plt.figure()
@@ -51,7 +51,7 @@ max4 = ax3D.scatter3D(maxRate['log_RS'], maxRate['overlap'], maxRate['log_kR'], 
 # Colorbar
 fig.colorbar(p2,
              ax=ax3D,
-             label='Peak score (a.u.)',
+             label='Peak score',
              orientation='horizontal',
              fraction=0.1,
              pad=0.05,
@@ -59,9 +59,9 @@ fig.colorbar(p2,
              aspect=15
              )
 
-ax3D.set_xlabel('log(RouteScore) (a.u.)')
+ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$')
 ax3D.set_xlim(3.25, 8.25)
-ax3D.set_ylabel('Spectral overlap (a.u.)')
+ax3D.set_ylabel('Spectral overlap')
 ax3D.set_zlabel('log(Fluorescence rate) ($ns^{-1}$)')
 ax3D.legend(
             title='Best:',
