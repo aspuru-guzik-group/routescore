@@ -131,5 +131,5 @@ print('\n–––––––––––––––––––––––�
 route_dfs = [n, s, b, bs, sb]
 names = ['Base', 'SNAr', 'Buch', 'B-S', 'S-B']
 for df, name in zip(route_dfs, names):
-    df.to_csv(os.path.join(TGT_DIR, f'target_{name}_BLANK.csv'))
+    df.to_csv(os.path.join(TGT_DIR, f'targets_{name}_BLANK.csv'))
     df.to_pickle(os.path.join(TGT_DIR, f'targets_{name}.pkl'))
