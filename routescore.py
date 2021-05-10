@@ -34,7 +34,7 @@ class General:
         Parameters
         ----------
         folder:     Directory where the file is located. Must be within HERE.
-        file:       Filname of the .pkl file
+        file:       Filename of the .pkl file
 
         Returns
         -------
@@ -44,12 +44,12 @@ class General:
         pkl = pickle.load(open(load_path, 'rb'))
         return pkl
 
-    def draw_mols(self, smiles_list: List[str]) -> None:
+    def draw_mols(self, smiles_list: List[str]):
         """Draw molecular structures inline.
 
         Parameters
         ----------
-        mol_list: List of SMILES to draw
+        smiles_list: List of SMILES to draw
 
         Returns
         -------
@@ -68,7 +68,7 @@ class General:
 
         Returns
         -------
-        df: Appropriately formatted dataframe.
+        df: Appropriately formatted dataframe
         """
         df: pd.DataFrame = pd.read_pickle(df_file)
         df['Step details'] = ''
@@ -80,7 +80,7 @@ class General:
     def Process(self,
                 targets_df: pd.DataFrame,
                 i: int,
-                steps_list: List[float],
+                steps_list: List[dict],
                 n_target: float
                 ) -> pd.DataFrame:
         """Do some final processing for the route in the full dataframe.
@@ -352,7 +352,7 @@ class Calculate:
 
         return block_info
 
-    def update_inventory(self, mol_smiles: str, mol_dict: dict) -> None:
+    def update_inventory(self, mol_smiles: str, mol_dict: dict):
         """Add new molecule to inventory if not already present.
 
         Parameters
@@ -444,7 +444,7 @@ class Calculate:
         cost_mat: float = rxn_scale * (rct_quant + rgt_quant)
         return cost_mat
 
-    def get_man_synth(self, sm_smiles: str, tgt_smiles: str, rxn_scale: float) -> Tuple[float, float, List[float]]:
+    def get_man_synth(self, sm_smiles: str, tgt_smiles: str, rxn_scale: float) -> Tuple[float, float, int]:
         """Compare input to known list of 'manual' molecules. Return score, cost and number of steps.
 
         Parameters
@@ -490,7 +490,7 @@ class Calculate:
                   scale: float,
                   yld: float,
                   manual: bool,
-                  ) -> float:
+                  ) -> dict:
         """Perform calculations for the StepScore.
 
         Parameters
@@ -535,8 +535,8 @@ class Calculate:
         for block in man_blocks:
             man_mol = {'score': 0, '$/mol': 0}
             man_mol['score'], man_Cmoney, man_steps = self.get_man_synth(block['SMILES'],
-                                                                                        target_smiles,
-                                                                                        scale)
+                                                                         target_smiles,
+                                                                         scale)
             man_stepscore += man_mol['score']
 
         sm_eqs: List[float] = [sm['eq'] for sm in sm_list]
@@ -595,7 +595,7 @@ class Calculate:
 
         return stepscore_results
 
-    def RouteScore(self, steps_list: List[float], total_yield: float) -> Tuple[float, int]:
+    def RouteScore(self, steps_list: List[dict], total_yield: float) -> Tuple[dict, int]:
         """Calculate the total RouteScore.
 
         Parameters
@@ -614,7 +614,7 @@ class Calculate:
         sum_stepscores = sum(stepscores_list)
         cost_factor: float = sum_stepscores / total_yield
         route_score: float = cost_factor
-        print(route_score)
+        # print(route_score)
 
         routescore_results = {'RouteScore': route_score,
                               'Cost factor': cost_factor,

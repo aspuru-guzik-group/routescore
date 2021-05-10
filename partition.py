@@ -68,7 +68,6 @@ print('s:', len(s))
 print('sb:', len(sb))
 print('g:', len(g))
 print(f'{len(targets)} - ({len(n)} + {len(b)} + {len(s)} + {len(sb)} + {len(g)}) = {len(targets)-(len(n)+len(b)+len(s)+len(sb)+len(g))}')
-
 print('\n––––––––––––––––––––––––––––––––––––––\n')
 
 # Add the corresponding intermediates for each route
