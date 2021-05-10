@@ -33,12 +33,16 @@ TGT_DIR = os.path.join(HERE, 'Targets')
 inv = pd.read_csv(os.path.join(INV_DIR, 'Inventory.csv'))
 inv = inv[~inv.Block_type.isin(['-'])]
 inv.to_csv(os.path.join(INV_DIR, 'Inventory.csv'))
+print('Reset Inventory.csv')
 
 # Remove 'full_props' file
 rm_files(PROP_DIR, ['full_props'], ['pkl'])
+print('Removed full_props.pkl')
 
 # Reset 'Results' directory
 rm_files(RSLT_DIR, ['*'], ['pkl'])
+print('Reset Results folder.')
 
 # Reset 'Targets' directory
 rm_files(TGT_DIR, ['targets_*'], ['pkl', 'csv'])
+print('Reset Targets folder.')
