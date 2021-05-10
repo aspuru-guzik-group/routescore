@@ -12,7 +12,7 @@ mpl.style.use('scientific')
 # Define directories
 HERE = os.path.abspath(os.path.dirname(__file__))
 TGT_DIR = os.path.join(HERE, 'Targets')
-ANL_DIR = os.path.join(HERE, 'Figures_S7_S8')
+FIG_DIR = os.path.join(HERE, 'Figures_S7_S8')
 
 
 def extract_details(df):
@@ -64,7 +64,7 @@ def comparison_plot(X, Y, title):
                  verticalalignment='bottom')
     plt.xlim(0.95 * min(X), 1.05 * max(X))
     plt.ylim(0.95 * min(Y), 1.05 * max(Y))
-    plt.savefig(os.path.join(ANL_DIR, f'BSvsSB {title}.png'))
+    plt.savefig(os.path.join(FIG_DIR, f'BSvsSB {title}.png'))
     plt.show()
 
 

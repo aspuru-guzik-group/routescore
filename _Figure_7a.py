@@ -18,9 +18,9 @@ fp['log_kR'] = np.log10(fp['fluo_rate_ns'])
 
 # Define thresholds
 thPk = 0.67
-thRS = 4.44
+thRS = 5.00
 thOvlp = 0.20
-thRate = -0.80
+thRate = np.log10(0.16)
 
 # Filter dataframes based on thresholds
 subSpace = fp[(fp['fluo_peak_1'] > thPk) & (fp['log_RS'] < thRS) & (fp['overlap'] < thOvlp) & (fp['log_kR'] > thRate)]

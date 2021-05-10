@@ -16,7 +16,9 @@ newRS = pd.read_pickle(os.path.join(RSLT_DIR, 'All_RSonly.pkl'))
 # Update RouteScores
 for i in range(len(props)):
     new_rs = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
-    props.at[i, 'route_score'] = new_rs
+    print(type(new_rs))
+    print(new_rs)
+    props.at[i, 'route_score'] = float(new_rs)
 
 #Save dataframe of all properties
 props.to_pickle(os.path.join(PROP_DIR, 'full_props.pkl'))
