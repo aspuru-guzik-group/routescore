@@ -1,0 +1,17 @@
+{
+	"general": {
+		"auto_desc_gen": "False",
+		"parallel":      "True",
+		"boosted":       "False",
+		"sampling_strategies": 2,
+		"random_seed": 684265
+	},
+	"parameters": [
+			{"name": "frag_a", "type": "categorical", "size": 1, "category_details": "CatDetails/cat_details_frag_a.pkl"},
+			{"name": "frag_b", "type": "categorical", "size": 1, "category_details": "CatDetails/cat_details_frag_b.pkl"},
+			{"name": "frag_c", "type": "categorical", "size": 1, "category_details": "CatDetails/cat_details_frag_c.pkl"}
+	],
+	"objectives": [
+			{"name": "merit", "goal": "minimize"}
+		]
+}
