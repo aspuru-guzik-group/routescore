@@ -1,5 +1,5 @@
 # Partition list of laser molecules by type of synthesis route (iSMC, SNAr, BHA, B-S, S-B)
-print('HERE')
+
 import partition
 # Calculate RouteScores for all iSMC routes
 import RS_Base
