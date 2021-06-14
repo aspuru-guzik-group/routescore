@@ -103,6 +103,7 @@ class General:
         -------
         targets_df: Updated full dataframe of all target molecules
         """
+        # Mass of target molecule obtained
         isolated: float = n_target * Descriptors.MolWt(Chem.MolFromSmiles(targets_df.at[i, 'pentamer']))
         # print(f'Isolated yield:    {isolated} g')
         routescore_details, total_man = Calculate().RouteScore(steps_list, n_target)
@@ -133,6 +134,9 @@ class Reaction_Templates:
         -------
         mult: Number of reaction sites on the molecule
         """
+        # Dictionary for pattern matching and counting reaction sites
+        # Keys correspond to the type of reaction
+        # Values correspond to the type of substructure to match
         patts: dict = {'Suzuki': [Chem.MolFromSmarts('cBr'),
                                   Chem.MolFromSmarts('cI')],
                        'deBoc': [Chem.MolFromSmiles('O=C(OC(C)(C)C)n1c2c(cc1)cccc2')],
@@ -145,8 +149,8 @@ class Reaction_Templates:
         matches_list: List[int] = [len(mol.GetSubstructMatches(substruct))
                                    for substruct in patts[rxn]]
         mult: int = sum(matches_list)
-        assert mult != 0, General().CustomError(General().draw_mols([smiles]),
-                                                'mult = 0!')
+        # If no reaction sites are found, show AssertionError and display the molecule
+        assert mult != 0, General().CustomError(General().draw_mols([smiles]), 'mult = 0!')
         return mult
 
     def wingSuzuki(self, smilesA: str, smilesB: str, smilesAB: str, smilesTgt: str, scale: float) -> Tuple[dict, float]:
@@ -165,12 +169,17 @@ class Reaction_Templates:
         Calculate().StepScore()
         wS_scale * wS_yield:    scale for next step
         """
+        # List of reactant molecules and eq per reaction site
         sm_list: List[dict] = [{'smiles': smilesA, 'eq': 3},
                                {'smiles': smilesB, 'eq': 1}
                                ]
+        # Number of reaction sites on the B molecule (1)
         rxn_sites = self.stoichiometry(smilesB, 'Suzuki')
+        # Total equivalents of A molecule
         sm_list[0]['eq'] = rxn_sites * sm_list[0]['eq']
-        wS_scale = scale
+        # Unlike subsequent reactions, scale isn't normalized because for the limiting reagent
+        # We treat commercially available materials as being available in essentially unlimited quantities
+        wS_scale: float = scale
         wS_yield: float = 1
         return Calculate().StepScore(
                                      sm_list,
@@ -199,12 +208,16 @@ class Reaction_Templates:
         Calculate().StepScore()
         pS_scale * pS_yield:    scale for next step
         """
+        # List of reactant molecules and eq per reaction site
         sm_list: List[dict] = [
                                {'smiles': smilesAB, 'eq': 3},
                                {'smiles': smilesC, 'eq': 1}
                                ]
+        # Number of reaction sites on the C molecule (2)
         rxn_sites = self.stoichiometry(smilesC, 'Suzuki')
+        # Total equivalents of AB molecule
         sm_list[0]['eq'] = rxn_sites * sm_list[0]['eq']
+        # Normalize scale for quantity of limiting reagent (AB)
         pS_scale: float = scale / sm_list[0]['eq']
         pS_yield: float = 1
         return Calculate().StepScore(
@@ -233,10 +246,13 @@ class Reaction_Templates:
         Calculate().StepScore()
         dB_scale * dB_yield:    scale for next step
         """
+        # List of reactant molecules and eq per reaction site
         sm_list: List[dict] = [
                                {'smiles': smilesNBoc, 'eq': 1}
                                ]
+        # Number of reaction sites for Boc-deprotection (2)
         rxn_sites = self.stoichiometry(smilesNBoc, 'deBoc')
+        # Normalize scale for quantity of limiting reagent
         dB_scale: float = scale / sm_list[0]['eq']
         dB_yield: float = 1
         return Calculate().StepScore(
@@ -266,12 +282,16 @@ class Reaction_Templates:
         Calculate().StepScore()
         BHA_scale * BHA_yield:    scale for next step
         """
+        # List of reactant molecules and eq per reaction site
         sm_list: List[dict] = [
                                {'smiles': smilesNH, 'eq': 1},
                                {'smiles': smilesX, 'eq': 3}
                                ]
+        # Number of reaction sites for BHA reaction (2)
         rxn_sites = self.stoichiometry(smilesBHA, 'BHA-Py')
+        # Total equivalents of halide
         sm_list[1]['eq'] = rxn_sites * sm_list[1]['eq']
+        # Normalize scale for quantity of limiting reagent
         BHA_scale: float = scale / sm_list[0]['eq']
         BHA_yield: float = 1
         return Calculate().StepScore(
@@ -301,12 +321,16 @@ class Reaction_Templates:
         Calculate().StepScore()
         SNAr_scale * SNAr_yield:    scale for next step
         """
+        # List of reactant molecules and eq per reaction site
         sm_list: List[dict] = [
                                {'smiles': smilesAr, 'eq': 1},
                                {'smiles': smilesNu, 'eq': 2}
                                ]
+        # Number of reaction sites for SNAr reaction (2)
         rxn_sites = self.stoichiometry(smilesSNAr, 'SNAr-Cz')
+        # Total equivalents of carbazole
         sm_list[1]['eq'] = rxn_sites * sm_list[1]['eq']
+        # Normalize scale for quantity of limiting reagent
         SNAr_scale: float = scale / sm_list[0]['eq']
         SNAr_yield: float = 1
         return Calculate().StepScore(
@@ -324,15 +348,16 @@ class Reaction_Templates:
 class Calculate:
     """Class containing operations for calculating StepScore."""
 
+    # Load values of C_H and C_M terms
     rates_path = os.path.join(SMRY_DIR, 'hrly_costs.pkl')
     hrly_rates = pickle.load(open(rates_path, 'rb'))
-
     C_H: float = hrly_rates['C_H']
     C_M: float = hrly_rates['C_M']
     a: float = C_H / C_M
     a_: float = 1 / a
 
     def __init__(self):
+        # Load inventory
         self.inv = None
         self.inv = pd.read_csv(inv_path)
 
@@ -407,12 +432,15 @@ class Calculate:
         -------
         cost_cad:   Total monetary cost of the reaction
         """
+        # Calculate total cost of reagents
         rgt_cost: float = 0
         rgt_cost = sum([rgt['$/mol'] * rgt['eq'] * multiplier for rgt in reagents])
+        # Calculate total cost of reactants
         rct_cost: float = 0
         rct_cost: float = sum([cost * eq for cost, eq in zip(sm_costs, sm_eqs)])
+        # Factor cost based on reaction scale
         mater_cost: float = rxn_scale * (rct_cost + rgt_cost)
-
+        # Add labor cost
         cost_cad: float = mater_cost + (time_H * self.C_H + time_M * self.C_M)
         return cost_cad
 
@@ -431,16 +459,19 @@ class Calculate:
         sm_MWs:     List of molecular weights of starting materials
         sm_eqs:     List of equivalents for each starting material
         rxn_scale:  Scale of the reaction (in mols)
-        multiplier: Multiplier based on reactive sites calculated in 'stoichiometry'
+        multiplier: Multiplier based on reaction sites calculated in 'stoichiometry'
 
         Returns
         -------
         cost_mat:   Total mass cost of the reaction
         """
+        # Calculate total mass of reagents required
         rgt_quant: float = 0
         rgt_quant = sum([rgt['g/mol'] * rgt['eq'] * multiplier for rgt in reagents])
+        # Calculate total mass of reactants required
         rct_quant: float = 0
         rct_quant: float = sum([mw * eq for mw, eq in zip(sm_MWs, sm_eqs)])
+        # Factor mass required based on reaction scale
         cost_mat: float = rxn_scale * (rct_quant + rgt_quant)
         return cost_mat
 
@@ -459,11 +490,13 @@ class Calculate:
         man_molarCost:  Cost of the manual building block in $/mol
         man_steps:      Number of manual reaction steps
         """
+        # Load dataframe of manual syntheses
         lookup_df = pd.DataFrame()
         lookup_df = pd.read_excel(os.path.join(SMRY_DIR, 'ManSynth_lookup.xlsx'))
         smry_fname: str = lookup_df['summary file'][lookup_df['SMILES'] == sm_smiles].iloc[0]
         man_df: dict = pd.read_excel(os.path.join(SMRY_DIR, smry_fname), sheet_name=None, dtype={'SM?': bool})
 
+        # For each step in manual synthesis, calculate StepScore
         score: float = 0
         for step in man_df:
             t_H: float = man_df[step]['t_H'][0]
@@ -500,7 +533,7 @@ class Calculate:
         product_smiles: SMILES of the desired product molecule
         target_smiles:  SMILES of the target molecule of the synthetic route
         rxn_type:       name of reaction to be carried out
-        multiplier:     Multiplier (for reagents) based on number of reactive sites
+        multiplier:     Multiplier (for reagents) based on number of reaction sites
         scale:          scale of the reaction in mols
         yld:            yield of the reaction
         manual:         whether the reaction if performed by a human (True) or a robot (False)
@@ -521,29 +554,35 @@ class Calculate:
         man_steps: float = 0
         man_stepscore: float = 0
 
+        # Get information on starting materials from inventory
         block_dicts: List[dict] = [self.get_block_info(sm['smiles']) for sm in sm_list]
-
+        # Get information on reagents for the reaction
         reaction: list = General().load_pkl(TYPE_DIR, rxn_type)
+        # Get reaction summary information
         rxn_smry: dict = General().load_pkl(SMRY_DIR, f'{rxn_type}_summary')
 
         n_parr: int = rxn_smry['n_parr']  # Number of reactions performed in parallel
         t_H: float = rxn_smry['t_H'] / n_parr
         t_M: float = rxn_smry['t_M'] / n_parr
 
+        # If there are manually synthesized blocks in the route, calculate cost of manual synthesis
         man_blocks: List[dict] = [block for block in block_dicts if block['Manual?'] == 'Yes']
-
         for block in man_blocks:
             man_mol = {'score': 0, '$/mol': 0}
+            # StepScore, monetary cost and # of steps in manual synthesis
             man_mol['score'], man_Cmoney, man_steps = self.get_man_synth(block['SMILES'],
                                                                          target_smiles,
                                                                          scale)
             man_stepscore += man_mol['score']
 
+        # List of equivalents for each reactant
         sm_eqs: List[float] = [sm['eq'] for sm in sm_list]
 
-        # Calculate cost to travel through chemical space
+        # Calculate costs of synthesis
+        # Time cost
         cost_time: float = self.TTC(t_H, t_M)
         block_costs: List[float] = [sm['$/mol'] for sm in block_dicts]
+        # Monetary cost
         cost_money: float = self.money(reaction,
                                        block_costs,
                                        sm_eqs,
@@ -552,6 +591,7 @@ class Calculate:
                                        scale,
                                        multiplier)
         block_MWs: List[float] = [sm['g/mol'] for sm in block_dicts]
+        # Materials cost
         cost_materials: float = self.mass(reaction,
                                           block_MWs,
                                           sm_eqs,
@@ -567,6 +607,7 @@ class Calculate:
         if manual is True:
             man_steps += 1
 
+        # Add product information to inventory
         product_dict: dict = {
                               'Block_type': '-',
                               'Block_num': 0,
@@ -608,10 +649,15 @@ class Calculate:
         route_score:     RouteScore for the route
         total_man_steps: Total number of manual reaction steps in the route
         """
+        # List containing # of all manual synthesis steps
         man_steps_l: List[int] = [step['# man steps'] for step in steps_list]
+        # Total number of manual synthesis steps
         total_man_steps: int = sum(man_steps_l)
+        # List of all StepScores
         stepscores_list: List[float] = [step['StepScore'] for step in steps_list]
+        # Sum of all StepScores
         sum_stepscores = sum(stepscores_list)
+        # Calculate RouteScore
         cost_factor: float = sum_stepscores / total_yield
         route_score: float = cost_factor
         # print(route_score)

@@ -17,3 +17,8 @@ To run all the _RouteScore_ calculations for the laser molecules:
 
 To make all figures from scratch:
 - Run `all_figs.py`
+
+A few notes:
+- `routescore.py` is used to calculate _RouteScore_, but must be called from another file and receive information about the route and molecules from that file.
+- _RouteScores_ are calculated from a `RS_xxx.py` file.
+- To understand how a _RouteScore_ is calculated, follow the comments in `RS_Base.py`. The process is very similar for all other route types.
