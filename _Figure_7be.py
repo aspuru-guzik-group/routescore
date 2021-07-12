@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # absolute tolerances for chimera
-absolutes = np.array([0.67, 27542.28703338169, 0.2, 0.15848931924611134])
+absolutes = np.array([0.67, 100000, 0.2, 0.15848931924611134])
 
 # load gryffn runs with RouteScore as objective
-df_w_rs = pd.read_pickle('Optimization/gryffin_runs/gryffin_runs_w_rs.pkl')
+df_w_rs = pd.read_pickle('Optimization/runs/gryffin_runs_w_rs.pkl')
 
 # load gryffn runs with RouteScore as objective
-df_wo_rs = pd.read_pickle('Optimization/gryffin_runs/gryffin_runs_wo_rs.pkl')
+df_wo_rs = pd.read_pickle('Optimization/runs/gryffin_runs_wo_rs.pkl')
 
 
 # make the plot
