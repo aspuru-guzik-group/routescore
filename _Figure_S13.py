@@ -19,7 +19,7 @@ data_types = ['fluo_peak_1', 'route_score', 'overlap', 'fluo_rate_ns']
 labels     = {'fluo_peak_1': 'Peak score',
               'route_score': 'RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$',
               'overlap': 'Spectral overlap',
-              'fluo_rate_ns': 'Fluorescence \nrate (ns$^{-1}$)'}
+              'fluo_rate_ns': 'Fluorescence \nrate (ns$^-1$)'}
 combs = list(itertools.combinations(data_types, 2))
 
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 6))
