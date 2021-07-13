@@ -16,8 +16,10 @@ target_df = pd.read_pickle('Properties/full_props.pkl')
 
 # make correlations plot
 data_types = ['fluo_peak_1', 'route_score', 'overlap', 'fluo_rate_ns']
-labels     = {'fluo_peak_1': 'Peak score [a.u.]', 'route_score': 'RouteScore',
-              'overlap': 'Spectral \noverlap [a.u.]', 'fluo_rate_ns': 'Fluorescence \nrate [ns$^-1$]'}
+labels     = {'fluo_peak_1': 'Peak score',
+              'route_score': 'RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$',
+              'overlap': 'Spectral overlap',
+              'fluo_rate_ns': 'Fluorescence \nrate (ns$^{-1}$)'}
 combs = list(itertools.combinations(data_types, 2))
 
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 6))
