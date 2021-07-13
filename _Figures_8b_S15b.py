@@ -26,7 +26,7 @@ def colors_from_values(values, palette_name):
 
 def calculate_freqs(dataset: str, sat_df_fname: str, fig_dims: Tuple, xlabel: str, xlim: Tuple, filename: str):
     # Load optimization results
-    opt_results = pickle.load(open(f'./Optimization/top/all_best_mols_{dataset}.pkl', 'rb'))
+    opt_results = pickle.load(open(f'./Optimization/runs/all_best_mols_{dataset}.pkl', 'rb'))
     opt_mols = [opt['smiles'] for opt in opt_results]
     # Load dataframe of satisfactory molecules (either top 20 or tolerable 34)
     sat_df = pd.read_csv(f'./Optimization/top/{sat_df_fname}.csv')
