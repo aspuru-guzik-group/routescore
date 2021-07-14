@@ -50,6 +50,7 @@ def calculate_freqs(dataset: str, sat_df_fname: str, fig_dims: Tuple, xlabel: st
             Draw.MolToImage(Chem.MolFromSmiles(smi))
     # Calculate frequency of identifying molecule as top target
     sat_df['freqs'] = [100*(ct/len(opt_results)) for ct in mol_cts]
+    print(sat_df['freqs'])
 
     # Make figure
     dims = fig_dims
