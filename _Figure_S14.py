@@ -29,7 +29,7 @@ sns.lineplot(data=df_gryf, x='iter', y='per',
 
 ax.legend(loc='upper left', fontsize=15)
 ax.set_xlabel('Number of evaluations', fontsize=15)
-ax.set_ylabel('Percent of tolerable\n candidates (%)', fontsize=15)
+ax.set_ylabel('Acceptable\n molecules (%)', fontsize=15)
 ax.set_xlim(0, 500)
 ax.set_ylim(0., 41.)
 ax.tick_params(labelsize=15)

@@ -30,7 +30,7 @@ ax = ax3D.scatter3D(fp['log_RS'], fp['overlap'], fp['log_kR'], c=cm(fp['fluo_pea
 # Colorbar
 fig.colorbar(ax,
              ax=ax3D,
-             label='Peak score (a.u.)',
+             label='Peak score',
              pad=0.1,
              shrink=0.42,
              aspect=10,
@@ -38,8 +38,8 @@ fig.colorbar(ax,
              panchor=(1.0, 1.0),
              )
 
-ax3D.set_xlabel('log(RouteScore) (a.u.)')
+ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$')
 ax3D.set_xlim(3.75, 8.25)
-ax3D.set_ylabel('Spectral overlap (a.u.)')
+ax3D.set_ylabel('Spectral overlap')
 ax3D.set_zlabel('log(Fluorescence rate) ($ns^{-1}$)')
 plt.show()
