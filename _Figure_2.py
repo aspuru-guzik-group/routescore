@@ -26,7 +26,6 @@ def plot_score(func, fname):
     # fig.colorbar(surf, shrink=0.5, aspect=5)
 
     plt.show()
-    plt.savefig(f'{fname}.pdf')
 
 
 tH = np.linspace(0, 6)
