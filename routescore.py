@@ -115,6 +115,7 @@ class General:
         targets_df.at[i, 'Step details'] = steps_list
         targets_df.at[i, 'RouteScore details'] = routescore_details
         targets_df.at[i, 'Total manual steps'] = int(total_man)
+        targets_df.at[i, 'NaiveScore'] = routescore_details['NaiveScore']
         targets_df.at[i, 'Successfully processed?'] = True
         return targets_df
 
@@ -415,7 +416,7 @@ class Calculate:
               time_M: float,
               rxn_scale: float,
               multiplier: int
-              ) -> float:
+              ) -> Tuple[float, float]:
         """Calculate the monetary cost of the reaction.
 
         Parameters
@@ -442,7 +443,7 @@ class Calculate:
         mater_cost: float = rxn_scale * (rct_cost + rgt_cost)
         # Add labor cost
         cost_cad: float = mater_cost + (time_H * self.C_H + time_M * self.C_M)
-        return cost_cad
+        return cost_cad, mater_cost
 
     def mass(self,
              reagents: List[dict],
@@ -475,7 +476,7 @@ class Calculate:
         cost_mat: float = rxn_scale * (rct_quant + rgt_quant)
         return cost_mat
 
-    def get_man_synth(self, sm_smiles: str, tgt_smiles: str, rxn_scale: float) -> Tuple[float, float, int]:
+    def get_man_synth(self, sm_smiles: str, tgt_smiles: str, rxn_scale: float) -> Tuple[float, float, int, float]:
         """Compare input to known list of 'manual' molecules. Return score, cost and number of steps.
 
         Parameters
@@ -504,6 +505,7 @@ class Calculate:
             man_yield: float = 1
             man_scale: float = rxn_scale / man_yield
             man_time: float = self.TTC(t_H, t_M)
+            man_naive_chem_cost: float = sum(man_df[step]['$/mol'] * man_df[step]['eq'] * man_scale)
             man_money: float = ((self.C_H * t_H + self.C_M * t_M) + sum(man_df[step]['$/mol'] * man_df[step]['eq'] * man_scale))
             man_materials: float = sum(man_df[step]['g/mol'] * man_df[step]['eq'] * man_scale)
             cost: float = man_time * man_money * man_materials
@@ -512,7 +514,7 @@ class Calculate:
             man_molarCost = man_yield * man_money / man_scale
 
         man_steps = len(man_df)
-        return score, man_molarCost, man_steps
+        return score, man_molarCost, man_steps, man_naive_chem_cost
 
     def StepScore(self,
                   sm_list: List[dict],
@@ -548,11 +550,13 @@ class Calculate:
                              'money': cost_money,
                              'materials': cost_materials,
                              'yield': yld,
-                             '# man steps': man_steps
+                             '# man steps': man_steps,
+                             'naive cost': ''
                              }
         """
         man_steps: float = 0
         man_stepscore: float = 0
+        man_naive_cost: float = 0
 
         # Get information on starting materials from inventory
         block_dicts: List[dict] = [self.get_block_info(sm['smiles']) for sm in sm_list]
@@ -568,12 +572,13 @@ class Calculate:
         # If there are manually synthesized blocks in the route, calculate cost of manual synthesis
         man_blocks: List[dict] = [block for block in block_dicts if block['Manual?'] == 'Yes']
         for block in man_blocks:
-            man_mol = {'score': 0, '$/mol': 0}
+            man_mol = {'score': 0, '$/mol': 0, 'naive': 0}
             # StepScore, monetary cost and # of steps in manual synthesis
-            man_mol['score'], man_Cmoney, man_steps = self.get_man_synth(block['SMILES'],
-                                                                         target_smiles,
-                                                                         scale)
+            man_mol['score'], man_Cmoney, man_steps, man_mol['naive'] = self.get_man_synth(block['SMILES'],
+                                                                                           target_smiles,
+                                                                                           scale)
             man_stepscore += man_mol['score']
+            man_naive_cost += man_mol['naive']
 
         # List of equivalents for each reactant
         sm_eqs: List[float] = [sm['eq'] for sm in sm_list]
@@ -583,13 +588,13 @@ class Calculate:
         cost_time: float = self.TTC(t_H, t_M)
         block_costs: List[float] = [sm['$/mol'] for sm in block_dicts]
         # Monetary cost
-        cost_money: float = self.money(reaction,
-                                       block_costs,
-                                       sm_eqs,
-                                       t_H,
-                                       t_M,
-                                       scale,
-                                       multiplier)
+        cost_money, naive_chem_cost = self.money(reaction,
+                                                 block_costs,
+                                                 sm_eqs,
+                                                 t_H,
+                                                 t_M,
+                                                 scale,
+                                                 multiplier)
         block_MWs: List[float] = [sm['g/mol'] for sm in block_dicts]
         # Materials cost
         cost_materials: float = self.mass(reaction,
@@ -601,6 +606,7 @@ class Calculate:
 
         step_score: float = cost
         step_score += man_stepscore
+        naive_chem_cost += man_naive_cost
 
         MW: float = Descriptors.MolWt(Chem.MolFromSmiles(product_smiles))
 
@@ -631,7 +637,8 @@ class Calculate:
                                    'money': cost_money,
                                    'materials': cost_materials,
                                    'yield': yld,
-                                   '# man steps': man_steps
+                                   '# man steps': man_steps,
+                                   'naive cost': naive_chem_cost
                                    }
 
         return stepscore_results
@@ -656,14 +663,19 @@ class Calculate:
         # List of all StepScores
         stepscores_list: List[float] = [step['StepScore'] for step in steps_list]
         # Sum of all StepScores
-        sum_stepscores = sum(stepscores_list)
+        sum_stepscores: float = sum(stepscores_list)
         # Calculate RouteScore
         cost_factor: float = sum_stepscores / total_yield
         route_score: float = cost_factor
         # print(route_score)
 
+        naive_cost_list: List[float] = [step['naive cost'] for step in steps_list]
+        naive_score: float = sum(naive_cost_list)
+
         routescore_results = {'RouteScore': route_score,
                               'Cost factor': cost_factor,
                               'sum Stepscores': sum_stepscores,
-                              'n_Target': total_yield}
+                              'n_Target': total_yield,
+                              'NaiveScore': naive_score
+                              }
         return routescore_results, total_man_steps

@@ -17,7 +17,7 @@ all_dfs = pd.DataFrame()
 dfs = [base, s, b, bs]
 df_names = ['Base', 'SNAr', 'Buch', 'B-S']
 for df, name in zip(dfs, df_names):
-    df = df[['pentamer', 'RouteScore', 'log(RouteScore)']]
+    df = df[['pentamer', 'RouteScore', 'log(RouteScore)', 'NaiveScore']]
     df.to_pickle(os.path.join(RSLT_DIR, f'{name}_RSonly.pkl'))
     all_dfs = all_dfs.append(df, ignore_index=True)
 
