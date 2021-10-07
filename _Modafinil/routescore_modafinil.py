@@ -14,6 +14,7 @@ for i in range(1, n_routes+1):
     C_money = []
     C_mass = []
     step_scores = []
+    naive_costs = []
 
     for step in route_xls.keys():
         print(step)
@@ -22,6 +23,7 @@ for i in range(1, n_routes+1):
         C_mass.append(route_xls[step]['C_mass'][0])
         step_scores.append(route_xls[step]['raw SS'][0])
         target_mols = route_xls[step]['n_prod'][0]
+        naive_costs.append(sum(route_xls[step]['n_i*C_i']))
 
     n_steps = len(step_scores)
     avg_time = sum(C_time) / n_steps
@@ -32,6 +34,7 @@ for i in range(1, n_routes+1):
     step_sums = sum(step_scores)
     cost = step_sums / target_mols
     route_score = cost
+    naive_score = sum(naive_costs) / target_mols
 
     route_xls['Summary'] = pd.DataFrame(columns=[
                                                  '# steps',
@@ -43,7 +46,8 @@ for i in range(1, n_routes+1):
                                                  'n_Target',
                                                  'cost factor',
                                                  'full RS',
-                                                 'log RS'
+                                                 'log RS',
+                                                 'Naive score'
                                                  ]
                                         )
     route_xls['Summary'].loc[0, '# steps'] = n_steps
@@ -57,6 +61,7 @@ for i in range(1, n_routes+1):
     route_xls['Summary'].loc[0, 'cost factor'] = cost
     route_xls['Summary'].loc[0, 'full RS'] = route_score
     route_xls['Summary'].loc[0, 'log RS'] = np.log10(route_score)
+    route_xls['Summary'].loc[0, 'Naive score'] = naive_score
 
     with pd.ExcelWriter(f'output_Route_{i}.xlsx') as writer:
         for step in route_xls.keys():

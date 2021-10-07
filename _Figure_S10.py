@@ -38,7 +38,7 @@ fig.colorbar(ax,
              panchor=(1.0, 1.0),
              )
 
-ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$')
+ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)')
 ax3D.set_xlim(3.75, 8.25)
 ax3D.set_ylabel('Spectral overlap')
 ax3D.set_zlabel('log(Fluorescence rate) ($ns^{-1}$)')

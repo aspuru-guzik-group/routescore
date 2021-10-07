@@ -35,7 +35,7 @@ axes[1].set_yscale('log')
 axes[1].axhline(absolutes[1], ls='--', linewidth=2, c='k', alpha=0.6)
 axes[1].fill_between(df_w_rs['eval'], absolutes[1], np.amax(df_w_rs['route_score']), color='#8C9196', alpha=0.25)
 axes[1].set_ylim(np.amin(df_w_rs['route_score']), np.amax(df_w_rs['route_score']))
-axes[1].set_ylabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$', fontsize=15)
+axes[1].set_ylabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)', fontsize=15)
 axes[1].tick_params(labelsize=13)
 
 sns.lineplot(x='eval', y='spectral_overlap', data=df_w_rs, ax=axes[2])

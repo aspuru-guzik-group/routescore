@@ -78,7 +78,7 @@ for y, t, rs, s, rt in zip(yld, time, logRS, steps, route_num_txt):
     xyz1 = ax1.scatter3D(y, t, rs, c=color, cmap=cmap, norm=norm, s=size, marker=path, alpha=1)
 ax1.set_xlabel('Overall yield (%)')
 ax1.set_ylabel('Total human time (h)')
-ax1.set_zlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$', rotation=270)
+ax1.set_zlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)', rotation=270)
 
 # Make colorbar
 cbar = plt.colorbar(xyz1,
@@ -113,7 +113,7 @@ for component in summary_df.columns:
         plt.scatter(summary_df[component][i], summary_df['RouteScore'][i], s=size, marker=path)
     plt.yscale('log')
     plt.xscale(plt_xscale)
-    plt.ylabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$')
+    plt.ylabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)')
     plt.xlabel(component)
     plt.savefig(os.path.join(HERE, 'Figure_S3', f'RS vs {component}.png'))
     plt.show()

@@ -45,7 +45,7 @@ ax = sns.violinplot(x='Route type',
 ax.set_ylim(bottom=bottom, top=top)
 ax.set_xticklabels(['iSMC\nauto.', 'iSMC\nman.', 'SNAr', 'BHA', 'B-S', 'S-B'])
 plt.xlabel('Route type', labelpad=-1.5)
-plt.ylabel('log(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$')
+plt.ylabel('log(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)')
 plt.tight_layout()
 plt.savefig('Figure_6.pdf')
 plt.show()

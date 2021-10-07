@@ -670,7 +670,7 @@ class Calculate:
         # print(route_score)
 
         naive_cost_list: List[float] = [step['naive cost'] for step in steps_list]
-        naive_score: float = sum(naive_cost_list)
+        naive_score: float = sum(naive_cost_list) / total_yield
 
         routescore_results = {'RouteScore': route_score,
                               'Cost factor': cost_factor,
