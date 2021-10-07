@@ -44,6 +44,8 @@ scale = [route['n_Target'][0] for route in routes]
 time = [route['total C_time'][0] for route in routes]
 # total yield
 yld = [route['Total yield'][0] for route in routes]
+# naive score
+naive_score = [route['Naive score'][0] for route in routes]
 
 # Make summary dataframe
 summary = {
@@ -56,7 +58,8 @@ summary = {
     'Number of steps': steps,
     'Scale (mol)': scale,
     'Total human time (h)': time,
-    'Total yield (%)': yld
+    'Total yield (%)': yld,
+    'Naive score ($/mol)': naive_score
 }
 summary_df = pd.DataFrame.from_dict(summary)
 summary_df.to_csv('Modaf_route_summaries.csv', index=False)
