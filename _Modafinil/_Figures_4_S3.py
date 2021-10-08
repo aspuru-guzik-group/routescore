@@ -104,7 +104,7 @@ plt.show()
 
 # Make plots for Figure S3
 for component in summary_df.columns:
-    if component in ('Avg. monetary cost per step ($)', 'Avg. materials cost per step (g)', 'Scale (mol)'):
+    if component in ('Avg. monetary cost per step ($)', 'Avg. materials cost per step (g)', 'Scale (mol)', 'Naive score ($/mol)'):
         x_log = True
         plt_xscale = 'log'
     else:
