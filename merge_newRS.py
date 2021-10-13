@@ -8,15 +8,15 @@ TGT_DIR = os.path.join(HERE, 'Targets')
 PROP_DIR = os.path.join(HERE, 'Properties')
 
 # Load quantum chemical properties
-props = pd.read_pickle(os.path.join(PROP_DIR, 'qchem_props.pkl'))
+props = pd.read_pickle(os.path.join(PROP_DIR, 'props_noRS.pkl'))
 
 # Load RouteScores
 newRS = pd.read_pickle(os.path.join(RSLT_DIR, 'All_RSonly.pkl'))
 
 # Update RouteScores
 for i in range(len(props)):
-    new_rs = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
-    new_naive = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['NaiveScore']
+    new_rs: pd.Series = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
+    new_naive: pd.Series = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['NaiveScore']
     props.at[i, 'route_score'] = float(new_rs)
     props.at[i, 'naive_score'] = float(new_naive)
 
