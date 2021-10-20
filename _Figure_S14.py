@@ -1,38 +1,45 @@
-#!/usr/bin/env python
-
-import numpy as np
+import os
 import pandas as pd
-
+import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D
 
+# Custom style
+mpl.style.use('scientific')
 
-# load random runs
-df_rand = pd.read_pickle('Optimization/runs/frac_found_random.pkl')
+# Define directories
+HERE = os.path.abspath(os.path.dirname(__file__))
+PROP_DIR = os.path.join(HERE, 'Properties')
 
-# load gryffin runs
-df_gryf = pd.read_pickle('Optimization/runs/frac_found_gryffin.pkl')
+# Create colormap
+cm = plt.get_cmap("viridis")
 
+# Load dataframe with all properties
+fp = pd.read_pickle(os.path.join(PROP_DIR, 'full_props.pkl'))
+fp['log_RS'] = np.log10(fp['route_score'])
+fp['log_kR'] = np.log10(fp['fluo_rate_ns'])
 
-# make plot
+# Create figure
+fig = plt.figure()
+ax3D = fig.add_subplot(111, projection='3d')
 
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 4))
+# 3D scatter plot
+ax = ax3D.scatter3D(fp['log_RS'], fp['overlap'], fp['log_kR'], c=cm(fp['fluo_peak_1']), marker='o')
 
-sns.lineplot(data=df_rand, x='iter', y='per',
-             lw=3,
-             label='Random Sampling',
-             ax=ax)
-sns.lineplot(data=df_gryf, x='iter', y='per',
-             lw=3,
-             label='Gryffin + Chimera',
-             ax=ax)
+# Colorbar
+fig.colorbar(ax,
+             ax=ax3D,
+             label='Peak score',
+             pad=0.1,
+             shrink=0.42,
+             aspect=10,
+             anchor=(0.0, 1.0),
+             panchor=(1.0, 1.0),
+             )
 
-ax.legend(loc='upper left', fontsize=15)
-ax.set_xlabel('Number of evaluations', fontsize=15)
-ax.set_ylabel('Acceptable\n molecules (%)', fontsize=15)
-ax.set_xlim(0, 500)
-ax.set_ylim(0., 41.)
-ax.tick_params(labelsize=15)
-
-plt.tight_layout()
+ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)')
+ax3D.set_xlim(3.75, 8.25)
+ax3D.set_ylabel('Spectral overlap')
+ax3D.set_zlabel('log(Fluorescence rate) ($ns^{-1}$)')
 plt.show()

@@ -1,34 +1,38 @@
 #!/usr/bin/env python
 
-import pickle
 import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# distributions of the individual scores
 
-# load the full properties
-df_full = pickle.load(open('Properties/full_props.pkl', 'rb'))
+# load random runs
+df_rand = pd.read_pickle('Optimization/runs/frac_found_random.pkl')
 
-# pairwise correlations of the naive score and SA, SC, SYBA, and RAscore-NN
-fig, axes = plt.subplots(1, 4, figsize=(12, 3.5), sharey=True)
-axes = axes.flatten()
+# load gryffin runs
+df_gryf = pd.read_pickle('Optimization/runs/frac_found_gryffin.pkl')
 
-scores = ['sa_score', 'sc_score', 'syba_score', 'sr_nn_score']
-names = ['SAscore', 'SCscore', 'SYBAscore', 'RAscore-NN']
 
-for ix, (ax, score, name) in enumerate(zip(axes, scores, names)):
+# make plot
 
-    sns.scatterplot(
-            df_full[score],
-            df_full['route_score'],
-            ax=ax,
-        )
-    ax.set_xlabel(name, fontsize=12)
-axes[0].set_ylabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)', fontsize=12)
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 4))
 
+sns.lineplot(data=df_rand, x='iter', y='per',
+             lw=3,
+             label='Random Sampling',
+             ax=ax)
+sns.lineplot(data=df_gryf, x='iter', y='per',
+             lw=3,
+             label='Gryffin + Chimera',
+             ax=ax)
+
+ax.legend(loc='upper left', fontsize=15)
+ax.set_xlabel('Number of evaluations', fontsize=15)
+ax.set_ylabel('Acceptable\n molecules (%)', fontsize=15)
+ax.set_xlim(0, 500)
+ax.set_ylim(0., 41.)
+ax.tick_params(labelsize=15)
 
 plt.tight_layout()
 plt.savefig('Figure_S19.png', dpi=300)

@@ -77,6 +77,6 @@ df_fnames = ['tolerable_34_w_rs', 'top_20_data_wo_rs']
 fig_sizes = [(13, 4), (10, 4)]
 axis_labels = ['Satisfactory molecules', 'Top 20 molecules without RouteScore']
 axis_limits = [(-0.5, 33.5), (-1, 20)]
-fig_names = ['Figure_8b', 'Figure_S15b']
+fig_names = ['Figure_8b', 'Figure_S20b']
 for data, fname, size, label, limit, figure in zip(datasets, df_fnames, fig_sizes, axis_labels, axis_limits, fig_names):
     calculate_freqs(dataset=data, sat_df_fname=fname, fig_dims=size, xlabel=label, xlim=limit, filename=figure)

@@ -1,45 +1,65 @@
-import os
-import pandas as pd
+#!/usr/bin/env python
+
+import pickle
 import numpy as np
-import matplotlib as mpl
+import pandas as pd
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import seaborn as sns
 
-# Custom style
-mpl.style.use('scientific')
+# distributions of the individual scores
 
-# Define directories
-HERE = os.path.abspath(os.path.dirname(__file__))
-PROP_DIR = os.path.join(HERE, 'Properties')
+# load the full properties
+df_full = pickle.load(open('Properties/full_props.pkl', 'rb'))
 
-# Create colormap
-cm = plt.get_cmap("viridis")
 
-# Load dataframe with all properties
-fp = pd.read_pickle(os.path.join(PROP_DIR, 'full_props.pkl'))
-fp['log_RS'] = np.log10(fp['route_score'])
-fp['log_kR'] = np.log10(fp['fluo_rate_ns'])
+scores = [
+    'naive_score',
+    'route_score',
+    'sa_score',
+    'sc_score',
+    'syba_score',
+    'sr_nn_score',
+]
 
-# Create figure
-fig = plt.figure()
-ax3D = fig.add_subplot(111, projection='3d')
+names = [
+         'Naive score [$ mol$^{-1}$]',
+         'RouteScore',
+         'SAscore',
+         'SCscore',
+         'SYBAscore',
+         'RAscore-NN',
+    ]
 
-# 3D scatter plot
-ax = ax3D.scatter3D(fp['log_RS'], fp['overlap'], fp['log_kR'], c=cm(fp['fluo_peak_1']), marker='o')
+fig, axes = plt.subplots(1, 6, figsize=(15, 3.5))
+axes = axes.flatten()
 
-# Colorbar
-fig.colorbar(ax,
-             ax=ax3D,
-             label='Peak score',
-             pad=0.1,
-             shrink=0.42,
-             aspect=10,
-             anchor=(0.0, 1.0),
-             panchor=(1.0, 1.0),
-             )
+for ix, (ax, score, name) in enumerate(zip(axes, scores, names)):
+    if score == 'route_score':
+        sns.distplot(
+            #np.log10(df_full[score]),
+            df_full[score],
+            kde=False,
+            ax=ax,
+        )
+    else:
+        sns.distplot(
+            df_full[score],
+            kde=False,
+            ax=ax,
+        )
 
-ax3D.set_xlabel('\nlog(RouteScore)\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)')
-ax3D.set_xlim(3.75, 8.25)
-ax3D.set_ylabel('Spectral overlap')
-ax3D.set_zlabel('log(Fluorescence rate) ($ns^{-1}$)')
+    if ix == 0:
+        ax.set_xticklabels(ax.get_xticks(), rotation=45)
+        ax.set_xlabel('Naive score $(\$ \cdot mol^{-1})$', fontsize=12)
+        ax.set_ylabel('Absolute frequency', fontsize=12)
+    elif ix == 1:
+        ax.set_xlabel('RouteScore\n$(h \cdot \$ \cdot g \cdot (mol \  target)^{-1}$)', fontsize=12)
+    else:
+        ax.set_xlabel(name, fontsize=12)
+
+
+
+plt.tight_layout()
+plt.savefig('Figure_S10.png', dpi=300)
 plt.show()
