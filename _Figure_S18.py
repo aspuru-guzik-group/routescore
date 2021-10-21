@@ -6,6 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Custom style
+plt.style.use('scientific')
+
 # absolute tolerances for chimera
 absolutes = np.array([0.67, 1080000, 0.2, 0.15848931924611134])
 
@@ -29,7 +32,7 @@ axes[1].set_yscale('log')
 axes[1].axhline(absolutes[1], ls='--', linewidth=2, c='k', alpha=0.6)
 axes[1].fill_between(df_naive['eval'], absolutes[1], np.amax(df_naive['naive_score']), color='#8C9196', alpha=0.25)
 axes[1].set_ylim(np.amin(df_naive['naive_score']), np.amax(df_naive['naive_score']))
-axes[1].set_ylabel('Naive score \n$( \$ \cdot mol^{-1}$)', fontsize=15)
+axes[1].set_ylabel('Naive score \n$( \$ \cdot (mol \  target)^{-1}$)', fontsize=15)
 axes[1].tick_params(labelsize=13)
 
 sns.lineplot(x='eval', y='spectral_overlap', data=df_naive, ax=axes[2])

@@ -1,4 +1,4 @@
-Route,RouteScore,log(RouteScore),Avg. time cost per step (h),Avg. monetary cost per step ($),Avg. materials cost per step (g),Number of steps,Scale (mol),Total human time (h),Total yield (%),Naive score ($/mol)
+Route,RouteScore,log(RouteScore),Avg. time cost per step (h),Avg. monetary cost per step ($),Avg. materials cost per step (g),Number of steps,Scale (mol),Total human time (h),Total yield (%),Naive score $(\$ \cdot (mol \  target)^{-1}$)
 1,687230.1620198905,5.837102212102785,2.194444444466666,156.4018901985336,328.13717,3,0.457289189672,6.5833333334,65.327027096,263.479886790729
 2,188000.6801938906,5.274159420561121,1.5,198.9549449557357,29.734124999999,2,0.07916999999999999,3.0,79.16999999999999,3018.818869666179
 3,153466.5012511958,5.186013592129502,1.333333333333333,76.31869498639206,10.518640666665,3,0.021883,4.0,66.31212121212121,780.335646811504

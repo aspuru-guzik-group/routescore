@@ -1,10 +1,11 @@
-#!/usr/bin/env python
-
 import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+# Custom style
+plt.style.use('scientific')
 
 # absolute tolerances for chimera
 absolutes = np.array([0.67, 100000, 0.2, 0.15848931924611134])
@@ -59,5 +60,5 @@ for ax in axes:
     ax.set_xlim(0, 500)
 
 plt.tight_layout()
-# plt.savefig('Figure_7be.pdf')
+plt.savefig('Figure_7be.png')
 plt.show()

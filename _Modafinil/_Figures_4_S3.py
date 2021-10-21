@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 # from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 # from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.text import TextPath
+from mpl_toolkits.mplot3d import Axes3D
 
 # Custom style
 mpl.style.use('scientific')
@@ -59,7 +60,7 @@ summary = {
     'Scale (mol)': scale,
     'Total human time (h)': time,
     'Total yield (%)': yld,
-    'Naive score ($/mol)': naive_score
+    'Naive score $(\$ \cdot (mol \  target)^{-1}$)': naive_score
 }
 summary_df = pd.DataFrame.from_dict(summary)
 summary_df.to_csv('Modaf_route_summaries.csv', index=False)
@@ -104,7 +105,7 @@ plt.show()
 
 # Make plots for Figure S3
 for component in summary_df.columns:
-    if component in ('Avg. monetary cost per step ($)', 'Avg. materials cost per step (g)', 'Scale (mol)', 'Naive score ($/mol)'):
+    if component in ('Avg. monetary cost per step ($)', 'Avg. materials cost per step (g)', 'Scale (mol)', 'Naive score $(\$ \cdot (mol \  target)^{-1}$)'):
         x_log = True
         plt_xscale = 'log'
     else:
