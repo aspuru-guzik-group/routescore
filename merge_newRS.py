@@ -1,21 +1,24 @@
 import os
 import pandas as pd
-import datetime
 
+# Define directories
 HERE = os.path.abspath(os.path.dirname(__file__))
 RSLT_DIR = os.path.join(HERE, 'Results')
 TGT_DIR = os.path.join(HERE, 'Targets')
 PROP_DIR = os.path.join(HERE, 'Properties')
 
+# Load quantum chemical properties
+props = pd.read_pickle(os.path.join(PROP_DIR, 'props_noRS.pkl'))
 
-props = pd.read_pickle(os.path.join(PROP_DIR, '20201221_full_props.pkl'))
+# Load RouteScores
 newRS = pd.read_pickle(os.path.join(RSLT_DIR, 'All_RSonly.pkl'))
 
-# props['route_score'] = [newRS[newRS['pentamer'] == smiles]['RouteScore'][0] for smiles in props['smiles']]
-
+# Update RouteScores
 for i in range(len(props)):
-    new_rs = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
-    props.at[i, 'route_score'] = new_rs
+    new_rs: pd.Series = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['RouteScore']
+    new_naive: pd.Series = newRS[newRS['pentamer'] == props.at[i, 'smiles']]['NaiveScore']
+    props.at[i, 'route_score'] = float(new_rs)
+    props.at[i, 'naive_score'] = float(new_naive)
 
-today = datetime.datetime.today().strftime('%Y%m%d')
-props.to_pickle(os.path.join(PROP_DIR, f'{today}_full_props.pkl'))
+# Save dataframe of all properties
+props.to_pickle(os.path.join(PROP_DIR, 'full_props.pkl'))

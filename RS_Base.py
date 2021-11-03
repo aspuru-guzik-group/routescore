@@ -1,26 +1,21 @@
 import os
 from typing import List
 import pandas as pd
-from routescore import General, Reaction_Templates, Calculate, Properties, Analysis
+from routescore import General, Reaction_Templates, Calculate
 
 gen = General()
 rxn = Reaction_Templates()
 calc = Calculate()
-pr = Properties()
-an = Analysis()
 
+# Define directories
 HERE = os.path.abspath(os.path.dirname(__file__))
 TGT_DIR = os.path.join(HERE, 'Targets')
 TARGETS_FILE = os.path.join(TGT_DIR, 'targets_Base.pkl')
 
+# Load dataframe and add details columns
+targets = gen.preProcess(TARGETS_FILE)
 
-# targets: pd.DataFrame = pd.read_pickle(TARGETS_FILE)
-# targets['Step details'] = ''
-# targets['Step details'] = targets['Step details'].astype('object')
-targets: pd.DataFrame = gen.preProcess(TARGETS_FILE)
-
-num_targets = len(targets.index)
-
+# Run RouteScore calculations
 print('Calculating RouteScore(s)...')
 for i in range(len(targets.index)):
     steps: List[dict] = []
@@ -28,7 +23,9 @@ for i in range(len(targets.index)):
     target = targets.at[i, 'pentamer']
 
     # step 1
+    # Initial reaction scale: 0.1 mmol
     scale: float = 0.0001
+    # Calculate StepScore and scale for next step based on reaction yield
     step1, NextStep_scale = rxn.wingSuzuki(
                                            targets.at[i, 'a'],
                                            targets.at[i, 'b'],
@@ -36,7 +33,6 @@ for i in range(len(targets.index)):
                                            target,
                                            scale
                                            )
-
     steps.append(step1)
 
     # step 2
@@ -48,12 +44,11 @@ for i in range(len(targets.index)):
                                                target,
                                                scale
                                                )
-
     steps.append(step2)
 
-    # final_scale = step2_yld * step2_scale
     final_scale = NextStep_scale
-
+    # Calculate RouteScore
+    # Update targets dataframe with information including RouteScore and StepScore details
     targets = gen.Process(
                           targets,
                           i,
@@ -61,8 +56,5 @@ for i in range(len(targets.index)):
                           final_scale
                           )
 
-targets = pr.get_props(targets)
-
+# Save dataframe of routes with RouteScores
 targets.to_pickle(TARGETS_FILE)
-
-an.plotting(targets)
