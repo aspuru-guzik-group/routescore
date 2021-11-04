@@ -1,5 +1,5 @@
 # Raw spectra file (too large)
-/Properties/raw_spectra.pkl
+Properties/raw_spectra.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
