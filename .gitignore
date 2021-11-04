@@ -2,6 +2,7 @@
 Properties/raw_spectra.pkl
 Properties/spectra_dict.pkl
 
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
